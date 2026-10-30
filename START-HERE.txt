@@ -1,0 +1,7 @@
+HOW TO PUT THIS ON YOUR EXISTING NETLIFY SITE
+1. Open github.com/madiraas/madhura-portfolio. Click Add file > Upload files.
+2. Unzip this folder. Drag in EVERYTHING inside "madhura-portfolio" (app, components, lib, public, supabase, middleware.ts, next.config.mjs, package.json, tsconfig.json). Say yes to replacing files. Click Commit changes.
+3. Netlify rebuilds by itself in about 2 minutes. Your admin login, Supabase data, Resume and projects stay as they are.
+4. One time only, for the Showcase tab in /admin (case studies, testimonials, photos, videos):
+   Supabase > SQL Editor > paste supabase/showcase.sql > Run.
+5. Then open yoursite/admin > Showcase tab > pick a lane > add.
