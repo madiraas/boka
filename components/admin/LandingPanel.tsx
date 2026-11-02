@@ -33,7 +33,7 @@ export default function LandingPanel({
         {multiline ? (
           <textarea value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
         ) : (
-          <input value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
+          <input type="text" value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
         )}
         {hint && <small>{hint}</small>}
       </div>
@@ -78,17 +78,18 @@ export default function LandingPanel({
 
       <div className="a-field">
         <label>Tunnels to show</label>
-        {LANES.map((l) => (
-          <label key={l.id} style={{ display: "flex", gap: 8, alignItems: "center", textTransform: "none", letterSpacing: 0 }}>
-            <input
-              type="checkbox"
-              style={{ width: "auto" }}
-              checked={!form.hiddenLanes.includes(l.id)}
-              onChange={(e) => toggleLane(l.id, e.target.checked)}
-            />
-            {l.label}
-          </label>
-        ))}
+        <div className="a-lanes">
+          {LANES.map((l) => {
+            const on = !form.hiddenLanes.includes(l.id);
+            return (
+              <label key={l.id} className={`a-lane${on ? " on" : ""}`}>
+                <input type="checkbox" checked={on} onChange={(e) => toggleLane(l.id, e.target.checked)} />
+                <span>{l.label}</span>
+                <em>{on ? "Showing" : "Hidden"}</em>
+              </label>
+            );
+          })}
+        </div>
         <small>Untick a tunnel to hide it from the home page, the portfolio page and its own page.</small>
       </div>
 

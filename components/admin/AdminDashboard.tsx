@@ -26,6 +26,7 @@ const TABS = [
   "Freelance",
   "Projects",
   "Showcase",
+  "Writing",
   "Education",
   "Tools",
   "How I Work",
@@ -135,6 +136,15 @@ export default function AdminDashboard({
         )}
         {tab === "Landing" && <LandingPanel toast={toast} />}
         {tab === "Showcase" && <ShowcasePanel toast={toast} />}
+        {tab === "Writing" && (
+          <>
+            <p style={{ color: "var(--muted)", marginBottom: 18, fontSize: 14, lineHeight: 1.6 }}>
+              Add your writing samples, pieces and pictures here. The Writing tunnel stays off the site
+              until you tick <b>Writing</b> in the Landing tab.
+            </p>
+            <ShowcasePanel toast={toast} onlyLane="writing" />
+          </>
+        )}
         {tab === "Projects" && (
           <ProjectsPanel
             projects={data.projects}

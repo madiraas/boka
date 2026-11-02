@@ -100,3 +100,32 @@ button{ font-family:var(--sans); }
 .a-upload-label:hover{ color:var(--accent); border-color:var(--accent); }
 .a-upload-label input{ display:none; }
 .a-empty{ font-size:14px; color:var(--muted); padding:30px; text-align:center; border:1px dashed var(--line); border-radius:6px; }
+
+/* ---- Admin, restyled to match the new site (rounded, cream and red) ---- */
+.admin-page{ background:var(--bg); }
+.admin-header h1{ font-weight:800; letter-spacing:-.02em; font-size:clamp(30px,4vw,42px); }
+.admin-tabs{ gap:8px; border-bottom:0; margin-bottom:34px; }
+.admin-tab{ font-family:var(--sans); font-size:13px; font-weight:600; letter-spacing:.04em; padding:10px 18px; border:1.5px solid var(--line); border-radius:999px; background:var(--paper); color:var(--ink); transition:background .2s,color .2s,border-color .2s; }
+.admin-tab:hover{ border-color:var(--ink); }
+.admin-tab.active{ background:var(--red); color:var(--cream); border-color:var(--red); }
+.a-editor{ border-radius:22px; border-color:var(--line); padding:clamp(20px,3vw,34px); box-shadow:0 1px 0 rgba(42,13,14,.04); }
+.a-card{ border-radius:18px; }
+.a-field label{ font-family:var(--sans); font-weight:600; letter-spacing:.06em; }
+.a-field input[type=text], .a-field input[type=email], .a-field input[type=tel], .a-field input[type=url], .a-field input[type=password], .a-field textarea, .a-field select{ border-radius:12px; font-size:15px; padding:12px 16px; }
+.a-field input:focus, .a-field textarea:focus, .a-field select:focus{ outline:2px solid var(--red); outline-offset:1px; border-color:var(--red); }
+.a-field small{ display:block; margin-top:6px; font-size:13px; color:var(--muted); }
+.a-field label input[type=checkbox]{ accent-color:var(--red); width:18px; height:18px; }
+.a-save{ background:var(--red); font-weight:600; padding:14px 30px; }
+.a-save:hover{ background:var(--red-deep); }
+.a-btn-ghost{ font-weight:600; }
+
+/* Landing tab: tunnel switches */
+.a-field input:not([type=checkbox]):not([type=file]){ width:100%; padding:12px 16px; border:1px solid var(--line); background:var(--paper); font-family:var(--sans); font-size:15px; border-radius:12px; }
+.a-field input:not([type=checkbox]):not([type=file]):focus{ outline:2px solid var(--red); outline-offset:1px; border-color:var(--red); }
+.a-lanes{ display:flex; flex-direction:column; gap:10px; margin-bottom:6px; }
+.a-field .a-lane{ display:flex; align-items:center; gap:12px; margin:0; padding:12px 16px; border:1.5px solid var(--line); border-radius:14px; background:var(--paper); cursor:pointer; text-transform:none; letter-spacing:0; font-size:15px; color:var(--ink); }
+.a-field .a-lane.on{ border-color:var(--red); background:#FFF1EA; }
+.a-lane input{ width:18px !important; height:18px; margin:0; accent-color:var(--red); flex:none; padding:0 !important; }
+.a-lane span{ font-weight:600; }
+.a-lane em{ margin-left:auto; font-style:normal; font-size:12px; font-weight:600; color:var(--muted); }
+.a-lane.on em{ color:var(--accent); }

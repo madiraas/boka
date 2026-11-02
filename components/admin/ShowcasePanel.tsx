@@ -56,13 +56,16 @@ const clean = (v: string | null | undefined) => (v && v.trim() ? v.trim() : null
 
 export default function ShowcasePanel({
   toast,
+  onlyLane,
 }: {
   toast: (msg: string, error?: boolean) => void;
+  /** Show just one section (used by the Writing tab) instead of all four. */
+  onlyLane?: ShowcaseLane;
 }) {
   const [items, setItems] = useState<ShowcaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [setupNeeded, setSetupNeeded] = useState(false);
-  const [lane, setLane] = useState<ShowcaseLane>("operations");
+  const [lane, setLane] = useState<ShowcaseLane>(onlyLane ?? "operations");
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -370,7 +373,7 @@ export default function ShowcasePanel({
         Case studies, testimonials and pictures/videos that appear on each section page of the
         rollercoaster site. A block stays hidden on the site until it has at least one published item.
       </p>
-      <div className="admin-tabs" style={{ marginBottom: 24 }}>
+      <div className="admin-tabs" style={{ marginBottom: 24, display: onlyLane ? "none" : undefined }}>
         {LANES.map((l) => (
           <button key={l.id} className={`admin-tab${lane === l.id ? " active" : ""}`} onClick={() => setLane(l.id)}>
             {l.label} ({items.filter((i) => i.lane === l.id).length})
