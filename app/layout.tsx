@@ -18,7 +18,7 @@ const body = Newsreader({
 export const metadata: Metadata = {
   title: "Madhura Padman: I make messy projects move.",
   description:
-    "Operations, travel, events and writing. Madhura Padman takes projects that are all over the place and keeps them moving until they are done.",
+    "Operations, travel and events. Madhura Padman takes projects that are all over the place and keeps them moving until they are done.",
 };
 
 export const viewport: Viewport = {

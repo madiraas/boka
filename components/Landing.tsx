@@ -77,7 +77,7 @@ export default function Landing({ name }: { name: string }) {
               </h1>
               <p className="hero-sub">
                 I&apos;m Madhura. I take the messy middle of a project and keep it moving, across
-                operations, travel, events and writing. Pick a tunnel below and I&apos;ll take you in.
+                operations, travel and events. Pick a tunnel below and I&apos;ll take you in.
               </p>
               <div className="hero-links">
                 <Link href="/resume" className="pill-btn cream big">
@@ -92,7 +92,7 @@ export default function Landing({ name }: { name: string }) {
         </div>
 
         <div className="ground">
-          <div className={`tunnels${riding ? " busy" : ""}`}>
+          <div className={`tunnels${riding ? " busy" : ""}`} style={{ ["--n" as string]: LANES.length }}>
             {LANES.map((l) => (
               <Tunnel key={l.id} lane={l} state={riding === l.id ? "go" : riding ? "dim" : ""} onRide={ride} />
             ))}

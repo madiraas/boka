@@ -22,6 +22,8 @@ export interface Lane {
   offer: { title: string; text: string }[];
   roles: { when: string; title: string; text: string }[];
   projects: { title: string; where: string; text: string }[];
+  /** Set to true to hide this lane everywhere on the public site (landing, portfolio, lane page). Remove it to bring the lane back. */
+  hidden?: boolean;
 }
 
 export const PROCESS: { title: string; text: string }[] = [
@@ -32,7 +34,7 @@ export const PROCESS: { title: string; text: string }[] = [
   { title: "I close the loop.", text: "The goal is a project that is actually done, not a list of completed tasks." },
 ]
 
-export const LANES: Lane[] = [
+const ALL_LANES: Lane[] = [
   {
     id: "operations",
     label: "Operations",
@@ -113,6 +115,7 @@ export const LANES: Lane[] = [
   },
   {
     id: "writing",
+    hidden: true, // nothing to show yet; delete this line to bring the Writing tunnel back
     label: "Writing",
     blurb: "Stories about places and the people who run them.",
     tint: "#DCD0F0",
@@ -133,6 +136,8 @@ export const LANES: Lane[] = [
     ],
   },
 ]
+
+export const LANES: Lane[] = ALL_LANES.filter((l) => !l.hidden);
 
 export function laneBySlug(slug: string) {
   return LANES.find((l) => l.id === slug);

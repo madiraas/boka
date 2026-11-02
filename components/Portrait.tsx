@@ -6,8 +6,8 @@ import { throwPetals } from "./Petals";
 const N = 64; // head-turn frames, one per ~5.6 degrees of the sweep
 const W = 700;
 const H = 600;
-const MAX_DEG_PER_SEC = 150; // never whips round
-const EASE = 3.6; // lower = softer
+const MAX_DEG_PER_SEC = 220; // still never whips round, but keeps up with the mouse
+const EASE = 5.5; // lower = softer
 
 const pad = (k: number) => (k < 10 ? "0" : "") + k;
 
@@ -29,21 +29,51 @@ export default function Portrait() {
 
     const center = new Image();
     const frames: HTMLImageElement[] = new Array(N);
+    const ready: boolean[] = new Array(N).fill(false);
+    let centerReady = false;
     let drawn = -2;
-    const draw = (img: HTMLImageElement | undefined, key: number) => {
-      if (!img || key === drawn || !img.complete || !img.naturalWidth) return;
-      ctx.drawImage(img, 0, 0, W, H);
+    // Draw one frame, or blend two neighbouring frames (f = 0..1) so the head
+    // glides between the 64 stills instead of snapping from one to the next.
+    const paint = (a: HTMLImageElement, b: HTMLImageElement | null, f: number, key: number) => {
+      if (key === drawn) return;
+      ctx.globalAlpha = 1;
+      ctx.drawImage(a, 0, 0, W, H);
+      if (b && f > 0.03) {
+        ctx.globalAlpha = f;
+        ctx.drawImage(b, 0, 0, W, H);
+        ctx.globalAlpha = 1;
+      }
       drawn = key;
     };
-    center.onload = () => {
-      if (drawn === -2) draw(center, -1);
+    // Frames are decoded up front, so the first turn never stalls on a decode.
+    const load = (im: HTMLImageElement, src: string, onReady: () => void) => {
+      im.decoding = "async";
+      im.src = src;
+      (im.decode ? im.decode() : Promise.resolve()).then(onReady).catch(() => {
+        if (im.complete && im.naturalWidth) onReady();
+      });
     };
-    center.src = "/frames/center.webp";
+    load(center, "/frames/center.webp", () => {
+      centerReady = true;
+      if (drawn === -2) paint(center, null, 0, -1);
+    });
     for (let k = 0; k < N; k++) {
       const im = new Image();
-      im.src = `/frames/${pad(k)}.webp`;
       frames[k] = im;
+      load(im, `/frames/${pad(k)}.webp`, () => {
+        ready[k] = true;
+      });
     }
+    // If a frame has not arrived yet, use the closest one that has.
+    const nearest = (k: number) => {
+      for (let d = 0; d < N / 2; d++) {
+        const a = (k + d) % N;
+        if (ready[a]) return a;
+        const b = (k - d + N) % N;
+        if (ready[b]) return b;
+      }
+      return -1;
+    };
 
     let pointer: { x: number; y: number; t: number } | null = null;
     let gazeEl: Element | null = null;
@@ -84,14 +114,14 @@ export default function Portrait() {
           tx = pointer.x;
           ty = pointer.y;
         } else {
-          draw(center, -1); // nobody pointing: she looks straight at you
+          if (centerReady) paint(center, null, 0, -1); // nobody pointing: she looks straight at you
           raf = requestAnimationFrame(tick);
           return;
         }
         const dx = tx - fx;
         const dy = ty - fy;
         if (Math.hypot(dx, dy) < r.height * 0.2) {
-          draw(center, -1); // eye contact when the cursor is near her face
+          if (centerReady) paint(center, null, 0, -1); // eye contact when the cursor is near her face
         } else {
           const th = (Math.atan2(-dy, dx) * 180) / Math.PI;
           const diff = ((th - ang + 540) % 360) - 180;
@@ -103,8 +133,14 @@ export default function Portrait() {
             step = Math.max(-cap, Math.min(cap, step));
             ang += step;
           }
-          const idx = ((Math.round(((ang + 180) / 360) * N) % N) + N) % N;
-          draw(frames[idx], idx);
+          const pos = ((((ang + 180) / 360) * N) % N + N) % N;
+          const i0 = Math.floor(pos);
+          const f = Math.round((pos - i0) * 6) / 6; // 6 blend steps between frames
+          const a = nearest(i0);
+          if (a >= 0) {
+            const bi = (i0 + 1) % N;
+            paint(frames[a], ready[bi] ? frames[bi] : null, f, i0 * 10 + f * 6);
+          }
         }
       }
       raf = requestAnimationFrame(tick);
