@@ -6,11 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import CatGate from "./CatGate";
 import Petals from "./Petals";
 import Portrait from "./Portrait";
-import { LANES, CONTACT, type Lane } from "@/lib/lanes";
+import { CONTACT, type Lane } from "@/lib/lanes";
+import type { LandingContent } from "@/lib/landing";
 
 type Gate = "pending" | "show" | "gone";
 
-export default function Landing({ name }: { name: string }) {
+export default function Landing({ name, content, lanes }: { name: string; content: LandingContent; lanes: Lane[] }) {
   const [gate, setGate] = useState<Gate>("pending");
   const [riding, setRiding] = useState<string | null>(null);
   const [wipe, setWipe] = useState<{ tint: string; x: number; y: number } | null>(null);
@@ -71,20 +72,20 @@ export default function Landing({ name }: { name: string }) {
             <Portrait />
             <div className="hero-copy">
               <h1>
-                Hello!
-                <br />
-                Welcome to my career rollercoaster.
+                {content.heading.split("\n").map((line, i) => (
+                  <span key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </span>
+                ))}
               </h1>
-              <p className="hero-sub">
-                I&apos;m Madhura. I take the messy middle of a project and keep it moving, across
-                operations, travel and events. Pick a tunnel below and I&apos;ll take you in.
-              </p>
+              <p className="hero-sub">{content.subtext}</p>
               <div className="hero-links">
                 <Link href="/resume" className="pill-btn cream big">
-                  View my resume
+                  {content.resumeLabel}
                 </Link>
                 <Link href="/portfolio" className="pill-btn line big">
-                  See the full portfolio
+                  {content.portfolioLabel}
                 </Link>
               </div>
             </div>
@@ -92,8 +93,8 @@ export default function Landing({ name }: { name: string }) {
         </div>
 
         <div className="ground">
-          <div className={`tunnels${riding ? " busy" : ""}`} style={{ ["--n" as string]: LANES.length }}>
-            {LANES.map((l) => (
+          <div className={`tunnels${riding ? " busy" : ""}`} style={{ ["--n" as string]: lanes.length }}>
+            {lanes.map((l) => (
               <Tunnel key={l.id} lane={l} state={riding === l.id ? "go" : riding ? "dim" : ""} onRide={ride} />
             ))}
           </div>
@@ -103,8 +104,7 @@ export default function Landing({ name }: { name: string }) {
       <section className="strip">
         <div className="wrap strip-in">
           <p>
-            <strong>Open to freelance projects.</strong> Tell me what needs running and I&apos;ll
-            tell you how I&apos;d do it.
+            <strong>{content.stripTitle}</strong> {content.stripText}
           </p>
           <div className="strip-links">
             <a className="pill-btn solid" href={CONTACT.whatsapp}>

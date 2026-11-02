@@ -15,9 +15,11 @@ import HowItWorkPanel from "./HowItWorkPanel";
 import ExperiencePanel from "./ExperiencePanel";
 import ProjectsPanel from "./ProjectsPanel";
 import ShowcasePanel from "./ShowcasePanel";
+import LandingPanel from "./LandingPanel";
 
 const TABS = [
   "Settings",
+  "Landing",
   "About",
   "Capabilities",
   "Experience",
@@ -131,6 +133,7 @@ export default function AdminDashboard({
             toast={toast}
           />
         )}
+        {tab === "Landing" && <LandingPanel toast={toast} />}
         {tab === "Showcase" && <ShowcasePanel toast={toast} />}
         {tab === "Projects" && (
           <ProjectsPanel

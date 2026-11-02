@@ -3,7 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSiteData } from "@/lib/data";
 import { getShowcase, laneOf } from "@/lib/showcase";
-import { CONTACT, LANES, PROCESS } from "@/lib/lanes";
+import { CONTACT, PROCESS } from "@/lib/lanes";
+import { getLanding, visibleLanes } from "@/lib/landing";
 import type { Experience } from "@/lib/types";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
@@ -16,6 +17,7 @@ export const metadata: Metadata = { title: "Portfolio: Madhura Padman" };
 export default async function PortfolioPage() {
   const supabase = createClient();
   const data = await getPublicSiteData(supabase);
+  const LANES = visibleLanes(await getLanding(supabase));
   const showcase = (await getShowcase(supabase)).filter((i) => i.kind === "case_study");
   const { settings: s, about, capabilities, problems } = data;
   const projects = data.projects.filter((p) => p.featured);

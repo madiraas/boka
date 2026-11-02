@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getShowcase } from "@/lib/showcase";
-import { CONTACT, LANES, PROCESS, laneBySlug } from "@/lib/lanes";
+import { CONTACT, PROCESS, laneBySlug } from "@/lib/lanes";
+import { getLanding, visibleLanes } from "@/lib/landing";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
@@ -18,7 +19,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default async function LanePage({ params }: { params: { slug: string } }) {
-  const lane = laneBySlug(params.slug);
+  const LANES = visibleLanes(await getLanding(createClient()));
+  const lane = LANES.find((l) => l.id === params.slug);
   if (!lane) notFound();
 
   const items = (await getShowcase(createClient())).filter((i) => i.lane === lane.id);
