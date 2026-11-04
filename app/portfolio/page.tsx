@@ -3,13 +3,13 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSiteData } from "@/lib/data";
 import { getShowcase, laneOf } from "@/lib/showcase";
-import { CONTACT, PROCESS } from "@/lib/lanes";
-import { getLanding, visibleLanes } from "@/lib/landing";
+import { getSite } from "@/lib/site";
 import type { Experience } from "@/lib/types";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
 import ContactBlock from "@/components/ContactBlock";
+import VideoBlock from "@/components/VideoBlock";
 
 export const revalidate = 0; // always fetch fresh from Supabase
 export const metadata: Metadata = { title: "Portfolio: Madhura Padman" };
@@ -17,13 +17,13 @@ export const metadata: Metadata = { title: "Portfolio: Madhura Padman" };
 export default async function PortfolioPage() {
   const supabase = createClient();
   const data = await getPublicSiteData(supabase);
-  const LANES = visibleLanes(await getLanding(supabase));
+  const site = await getSite(supabase);
+  const { t, contact } = site;
+  const LANES = site.lanes;
   const showcase = (await getShowcase(supabase)).filter((i) => i.kind === "case_study");
   const { settings: s, about, capabilities, problems } = data;
   const projects = data.projects.filter((p) => p.featured);
-  const howIWork = data.howIWork.length
-    ? data.howIWork
-    : PROCESS.map((p) => ({ title: p.title, desc: p.text }));
+  const howIWork = site.steps.map((p) => ({ title: p.title, desc: p.text }));
 
   // first picture of each project, for the cards
   const cover: Record<string, string> = {};
@@ -44,7 +44,7 @@ export default async function PortfolioPage() {
 
   return (
     <div className="page">
-      <Nav name={s.name || "Madhura Padman"} />
+      <Nav name={s.name || "Madhura Padman"} copy={site.copy} />
 
       <header className="page-head">
         <div className="wrap">
@@ -55,30 +55,37 @@ export default async function PortfolioPage() {
           </p>
           <div className="head-links">
             <Link href="/resume" className="pill-btn cream big">
-              View my resume
+              {t("port.btnResume")}
             </Link>
-            <a href={CONTACT.whatsapp} className="pill-btn line big">
-              WhatsApp me
+            <a href={contact.whatsapp} className="pill-btn line big">
+              {t("port.btnWhatsapp")}
             </a>
           </div>
         </div>
       </header>
 
+      {site.videos.intro && site.videos.showPortfolio && (
+        <section className="meet" id="meet">
+          <div className="wrap">
+            <VideoBlock item={site.videos.intro} heading={t("port.videoTitle")} />
+          </div>
+        </section>
+      )}
       <div className="jump">
         <div className="jump-in">
-          <a href="#about">About</a>
-          <a href="#help">What I do</a>
-          <a href="#work">Case studies</a>
-          <a href="#experience">Experience</a>
-          <a href="#process">Process</a>
-          <a href="#contact">Contact</a>
+          <a href="#about">{t("port.jump.about")}</a>
+          <a href="#help">{t("port.jump.help")}</a>
+          <a href="#work">{t("port.jump.work")}</a>
+          <a href="#experience">{t("port.jump.exp")}</a>
+          <a href="#process">{t("port.jump.process")}</a>
+          <a href="#contact">{t("port.jump.contact")}</a>
         </div>
       </div>
 
       <section className="sec" id="about">
         <div className="wrap about-grid">
           <Reveal className="about-body">
-            <div className="kicker">About</div>
+            <div className="kicker">{t("port.about.kicker")}</div>
             {about.paragraphs.length ? (
               about.paragraphs.map((p, i) => <p key={i}>{p}</p>)
             ) : (
@@ -101,9 +108,9 @@ export default async function PortfolioPage() {
       <section className="sec tint" id="help">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">What can you hand me?</div>
+            <div className="kicker">{t("port.help.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              Real problems, not service tiers.
+              {t("port.help.title")}
             </Reveal>
           </div>
           {problems.length > 0 && (
@@ -133,12 +140,12 @@ export default async function PortfolioPage() {
       <section className="sec" id="work">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">Case studies</div>
+            <div className="kicker">{t("port.work.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              A few things I&apos;ve actually run.
+              {t("port.work.title")}
             </Reveal>
             <p className="sec-lede">
-              Pick a tunnel to see the work, the people I did it for and the pictures from the field.
+              {t("port.work.lede")}
             </p>
             <div className="lane-switch" style={{ ["--dot" as string]: "#000" }}>
               {LANES.map((l) => (
@@ -161,18 +168,18 @@ export default async function PortfolioPage() {
                   )}
                 </div>
                 <div className="cs-body">
-                  {p.status === "coming-soon" && <span className="badge">Coming soon</span>}
+                  {p.status === "coming-soon" && <span className="badge">{t("port.badge.soon")}</span>}
                   <div className="cs-meta">
                     {[p.org, p.category].filter(Boolean).join(", ")}
                   </div>
                   <h3>{p.title}</h3>
                   <p>{p.short_desc}</p>
-                  <div className="cs-more">Read the case study</div>
+                  <div className="cs-more">{t("port.work.read")}</div>
                 </div>
               </Link>
             ))}
             {showcase.map((c) => {
-              const lane = laneOf(c.lane);
+              const lane = site.allLanes.find((l) => l.id === c.lane) ?? laneOf(c.lane);
               return (
                 <Link
                   href={`/lane/${c.lane}`}
@@ -203,13 +210,10 @@ export default async function PortfolioPage() {
             })}
             {!projects.length && !showcase.length && (
               <div className="invite" style={{ gridColumn: "1 / -1" }}>
-                <h3>Your project could be the first one here.</h3>
-                <p>
-                  I take on a handful of freelance projects at a time. Tell me what you need and I will tell
-                  you how I would run it.
-                </p>
-                <a className="pill-btn solid" href={CONTACT.whatsapp}>
-                  Start a project
+                <h3>{t("invite.title")}</h3>
+                <p>{t("invite.text")}</p>
+                <a className="pill-btn solid" href={contact.whatsapp}>
+                  {t("invite.button")}
                 </a>
               </div>
             )}
@@ -221,13 +225,13 @@ export default async function PortfolioPage() {
         <section className="sec tint" id="freelance">
           <div className="wrap">
             <div className="sec-head">
-              <div className="kicker">Freelance and ground work</div>
+              <div className="kicker">{t("port.free.kicker")}</div>
               <Reveal as="h2" className="sec-title">
-                Taken on outside the day job.
+                {t("port.free.title")}
               </Reveal>
             </div>
             <Reveal className="timeline">
-              <Rows list={data.freelance} />
+              <Rows list={data.freelance} t={t} />
             </Reveal>
           </div>
         </section>
@@ -236,13 +240,13 @@ export default async function PortfolioPage() {
       <section className="sec" id="experience">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">Experience</div>
+            <div className="kicker">{t("port.exp.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              Not a timeline. Proof.
+              {t("port.exp.title")}
             </Reveal>
           </div>
           <Reveal className="timeline">
-            <Rows list={data.experience} />
+            <Rows list={data.experience} t={t} />
           </Reveal>
         </div>
       </section>
@@ -250,9 +254,9 @@ export default async function PortfolioPage() {
       <section className="sec tint" id="process">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">How I work</div>
+            <div className="kicker">{t("port.proc.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              Five steps. No surprises.
+              {t("port.proc.title")}
             </Reveal>
           </div>
           <Reveal as="ol" className="steps">
@@ -273,12 +277,14 @@ export default async function PortfolioPage() {
         linkedin={s.linkedin}
         name={s.name}
         location={s.location}
+        whatsapp={contact.whatsapp}
+        copy={site.copy}
       />
     </div>
   );
 }
 
-function Rows({ list }: { list: Experience[] }) {
+function Rows({ list, t }: { list: Experience[]; t: (k: string) => string }) {
   if (!list.length) return <div className="empty-note">Nothing added yet.</div>;
   return (
     <>
@@ -292,13 +298,13 @@ function Rows({ list }: { list: Experience[] }) {
           <div className="t-body">
             {e.context && (
               <p>
-                <b>Context</b>
+                <b>{t("port.exp.context")}</b>
                 {e.context}
               </p>
             )}
             {e.responsibilities && (
               <p>
-                <b>What I handled</b>
+                <b>{t("port.exp.did")}</b>
                 {e.responsibilities}
               </p>
             )}

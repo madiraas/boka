@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSiteData } from "@/lib/data";
 import PrintButton from "@/components/PrintButton";
+import VideoBlock from "@/components/VideoBlock";
+import { getSite } from "@/lib/site";
 
 export const revalidate = 0;
 export const metadata: Metadata = { title: "Resume: Madhura Padman" };
@@ -10,6 +12,8 @@ export const metadata: Metadata = { title: "Resume: Madhura Padman" };
 export default async function ResumePage() {
   const supabase = createClient();
   const data = await getPublicSiteData(supabase);
+  const site = await getSite(supabase);
+  const t = site.t;
   const s = data.settings;
   const featuredProjects = data.projects.filter(
     (p) => p.featured && p.status === "published"
@@ -35,7 +39,7 @@ export default async function ResumePage() {
     <div className="page" style={{ paddingTop: 0 }}>
       <div className="resume-bar">
         <Link href="/portfolio" className="pill-btn">
-          &larr; Back to portfolio
+          &larr; {t("resume.back")}
         </Link>
         <Link href="/" className="brand">
           {s.name || "Madhura Padman"}
@@ -56,17 +60,23 @@ export default async function ResumePage() {
         </div>
       </header>
 
+      {site.videos.intro && site.videos.showResume && (
+        <div className="r-video">
+          <VideoBlock item={site.videos.intro} heading={t("resume.videoTitle")} />
+        </div>
+      )}
+
       <div className="r-sheet">
         {data.about.paragraphs[0] && (
           <section className="r-section">
-            <h2>Profile</h2>
+            <h2>{t("resume.profile")}</h2>
             <p className="r-profile">{data.about.paragraphs[0]}</p>
           </section>
         )}
 
         {data.capabilities.length > 0 && (
           <section className="r-section">
-            <h2>Core capabilities</h2>
+            <h2>{t("resume.caps")}</h2>
             <div className="r-caps">
               {data.capabilities.map((c, i) => (
                 <span className="r-cap-pill" key={i}>
@@ -78,20 +88,20 @@ export default async function ResumePage() {
         )}
 
         <section className="r-section">
-          <h2>Experience</h2>
+          <h2>{t("resume.exp")}</h2>
           {rows(data.experience)}
         </section>
 
         {data.freelance.length > 0 && (
           <section className="r-section">
-            <h2>Freelance work</h2>
+            <h2>{t("resume.free")}</h2>
             {rows(data.freelance)}
           </section>
         )}
 
         {featuredProjects.length > 0 && (
           <section className="r-section">
-            <h2>Selected projects</h2>
+            <h2>{t("resume.projects")}</h2>
             {featuredProjects.map((p) => (
               <div className="r-exp-item" key={p.id}>
                 <div className="r-exp-head">
@@ -105,7 +115,7 @@ export default async function ResumePage() {
 
         <div className="r-two-col">
           <section className="r-section">
-            <h2>Education</h2>
+            <h2>{t("resume.edu")}</h2>
             {data.education.map((e, i) => (
               <div className="r-edu-item" key={i}>
                 <b>{e.degree}</b>
@@ -114,7 +124,7 @@ export default async function ResumePage() {
             ))}
           </section>
           <section className="r-section">
-            <h2>Tools</h2>
+            <h2>{t("resume.tools")}</h2>
             <div className="r-tools">
               {data.tools.map((t, i) => (
                 <span key={i}>{t}</span>
@@ -125,8 +135,7 @@ export default async function ResumePage() {
       </div>
 
       <p className="resume-print-hint">
-        Choose &quot;Save as PDF&quot; above, then pick &quot;Save as PDF&quot; as the printer in the window
-        that opens.
+        {t("resume.hint")}
       </p>
     </div>
   );

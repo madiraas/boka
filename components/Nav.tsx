@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { makeT } from "@/lib/sitecopy";
 
 const LINKS = [
-  { href: "/", label: "The ride" },
-  { href: "/portfolio", label: "Portfolio" },
-  { href: "/portfolio#work", label: "Case studies" },
-  { href: "/portfolio#contact", label: "Contact" },
+  { href: "/", key: "nav.home" },
+  { href: "/portfolio", key: "nav.portfolio" },
+  { href: "/portfolio#work", key: "nav.cases" },
+  { href: "/portfolio#contact", key: "nav.contact" },
 ];
 
 /** Top bar for every page except the landing page (which has its own). */
-export default function Nav({ name = "Madhura Padman" }: { name?: string }) {
+export default function Nav({ name = "Madhura Padman", copy }: { name?: string; copy?: Record<string, string> }) {
+  const t = makeT(copy);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -34,16 +36,16 @@ export default function Nav({ name = "Madhura Padman" }: { name?: string }) {
         <nav className="site-links" aria-label="Main">
           {LINKS.map((l) => (
             <Link
-              key={l.label}
+              key={l.key}
               href={l.href}
               aria-current={l.href === pathname ? "page" : undefined}
               onClick={() => setOpen(false)}
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
           <Link href="/resume" className="pill-btn solid" onClick={() => setOpen(false)}>
-            Resume
+            {t("nav.resume")}
           </Link>
         </nav>
         <button

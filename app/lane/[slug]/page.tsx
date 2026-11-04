@@ -3,13 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getShowcase } from "@/lib/showcase";
-import { CONTACT, PROCESS, laneBySlug } from "@/lib/lanes";
-import { getLanding, visibleLanes } from "@/lib/landing";
+import { laneBySlug } from "@/lib/lanes";
+import { getSite } from "@/lib/site";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
 import Gallery from "@/components/Gallery";
 import Composer from "@/components/Composer";
+import VideoBlock from "@/components/VideoBlock";
 
 export const revalidate = 0;
 
@@ -19,9 +20,12 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default async function LanePage({ params }: { params: { slug: string } }) {
-  const LANES = visibleLanes(await getLanding(createClient()));
+  const site = await getSite(createClient());
+  const { t, contact } = site;
+  const LANES = site.lanes;
   const lane = LANES.find((l) => l.id === params.slug);
   if (!lane) notFound();
+  const video = site.videos.lanes[lane.id] ?? (site.videos.showTunnels ? site.videos.intro : null);
 
   const items = (await getShowcase(createClient())).filter((i) => i.lane === lane.id);
   const cases = items.filter((i) => i.kind === "case_study");
@@ -32,13 +36,13 @@ export default async function LanePage({ params }: { params: { slug: string } })
   return (
     <div className="page" style={{ ["--tint" as string]: lane.tint, ["--dot" as string]: lane.dot }}>
       <div className="arrive" aria-hidden="true" />
-      <Nav />
+      <Nav copy={site.copy} />
 
       <header className="lane-hero">
         <div className="wrap">
           <div className="lane-switch">
             <Link href="/" className="back">
-              &larr; Back to the ride
+              &larr; {t("lane.back")}
             </Link>
             {LANES.map((l) => (
               <Link
@@ -55,36 +59,43 @@ export default async function LanePage({ params }: { params: { slug: string } })
           <h1>{lane.title}</h1>
           <p className="lede">{lane.lede}</p>
           <div className="cta">
-            <a className="pill-btn solid big" href={CONTACT.whatsapp}>
-              Work with me on WhatsApp
+            <a className="pill-btn solid big" href={contact.whatsapp}>
+              {t("lane.cta1")}
             </a>
-            <a className="pill-btn big" href={`mailto:${CONTACT.email}?subject=${encodeURIComponent(lane.subject)}`}>
-              Send an email
+            <a className="pill-btn big" href={`mailto:${contact.email}?subject=${encodeURIComponent(lane.subject)}`}>
+              {t("lane.cta2")}
             </a>
             <Link className="pill-btn big" href="/resume">
-              View my resume
+              {t("lane.cta3")}
             </Link>
           </div>
         </div>
       </header>
 
+      {video && (
+        <section className="vid-tunnel" id="watch">
+          <div className="wrap">
+            <VideoBlock item={video} heading={t("lane.videoTitle")} />
+          </div>
+        </section>
+      )}
       <div className="jump">
         <div className="jump-in">
-          <a href="#offer">What I take on</a>
-          <a href="#cases">Case studies</a>
-          {voices.length > 0 && <a href="#voices">What people say</a>}
-          {shots.length > 0 && <a href="#field">From the field</a>}
-          {lane.roles.length > 0 && <a href="#roles">Where I&apos;ve done this</a>}
-          <a href="#contact">Contact</a>
+          <a href="#offer">{t("lane.jump.offer")}</a>
+          <a href="#cases">{t("lane.jump.cases")}</a>
+          {voices.length > 0 && <a href="#voices">{t("lane.jump.voices")}</a>}
+          {shots.length > 0 && <a href="#field">{t("lane.jump.field")}</a>}
+          {lane.roles.length > 0 && <a href="#roles">{t("lane.jump.roles")}</a>}
+          <a href="#contact">{t("lane.jump.contact")}</a>
         </div>
       </div>
 
       <section className="sec" id="offer">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">What I can take on</div>
+            <div className="kicker">{t("lane.offer.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              Hand me the messy part.
+              {t("lane.offer.title")}
             </Reveal>
           </div>
           <Reveal className={lane.offer.length === 3 ? "grid-3" : "grid-2"}>
@@ -101,9 +112,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
       <section className="sec tint" id="cases">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">Case studies</div>
+            <div className="kicker">{t("lane.cases.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              {isWriting ? "Pieces and projects." : "Work I can show you."}
+              {isWriting ? t("lane.cases.titleWriting") : t("lane.cases.title")}
             </Reveal>
           </div>
           {cases.length ? (
@@ -133,13 +144,10 @@ export default async function LanePage({ params }: { params: { slug: string } })
             </Reveal>
           ) : (
             <div className="invite">
-              <h3>Your project could be the first one here.</h3>
-              <p>
-                I take on a handful of freelance projects at a time. Tell me what you need and I will tell you
-                how I would run it.
-              </p>
-              <a className="pill-btn solid" href={`mailto:${CONTACT.email}?subject=${encodeURIComponent(lane.subject)}`}>
-                Start a project
+              <h3>{t("invite.title")}</h3>
+              <p>{t("invite.text")}</p>
+              <a className="pill-btn solid" href={`mailto:${contact.email}?subject=${encodeURIComponent(lane.subject)}`}>
+                {t("invite.button")}
               </a>
             </div>
           )}
@@ -150,9 +158,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
         <section className="sec" id="voices">
           <div className="wrap">
             <div className="sec-head">
-              <div className="kicker">What people say</div>
+              <div className="kicker">{t("lane.voices.kicker")}</div>
               <Reveal as="h2" className="sec-title">
-                In their words.
+                {t("lane.voices.title")}
               </Reveal>
             </div>
             <Reveal className="quote-grid">
@@ -174,9 +182,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
         <section className="sec tint" id="field">
           <div className="wrap">
             <div className="sec-head">
-              <div className="kicker">From the field</div>
+              <div className="kicker">{t("lane.field.kicker")}</div>
               <Reveal as="h2" className="sec-title">
-                Pictures and clips.
+                {t("lane.field.title")}
               </Reveal>
             </div>
             <Gallery items={shots} />
@@ -188,9 +196,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
         <section className="sec" id="roles">
           <div className="wrap">
             <div className="sec-head">
-              <div className="kicker">Where I&apos;ve done this</div>
+              <div className="kicker">{t("lane.roles.kicker")}</div>
               <Reveal as="h2" className="sec-title">
-                The roles behind the work.
+                {t("lane.roles.title")}
               </Reveal>
             </div>
             <Reveal className="timeline">
@@ -214,9 +222,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
         <section className={`sec${lane.roles.length > 0 ? " tint" : ""}`} id="projects">
           <div className="wrap">
             <div className="sec-head">
-              <div className="kicker">{isWriting ? "What I'm writing about" : "Projects"}</div>
+              <div className="kicker">{isWriting ? t("lane.proj.kickerWriting") : t("lane.proj.kicker")}</div>
               <Reveal as="h2" className="sec-title">
-                {isWriting ? "The stories I'm after." : "Things I built and ran."}
+                {isWriting ? t("lane.proj.titleWriting") : t("lane.proj.title")}
               </Reveal>
             </div>
             <Reveal className="grid-2">
@@ -232,8 +240,7 @@ export default async function LanePage({ params }: { params: { slug: string } })
             </Reveal>
             {isWriting && (
               <p className="sec-lede" style={{ marginTop: 36, marginBottom: 0 }}>
-                The first reported piece, from the Andaman Islands, is in progress. Published work will appear
-                above as soon as it exists.
+                {t("lane.writingNote")}
               </p>
             )}
           </div>
@@ -243,13 +250,13 @@ export default async function LanePage({ params }: { params: { slug: string } })
       <section className="sec" id="process">
         <div className="wrap">
           <div className="sec-head">
-            <div className="kicker">How we would work</div>
+            <div className="kicker">{t("lane.proc.kicker")}</div>
             <Reveal as="h2" className="sec-title">
-              Five steps. No surprises.
+              {t("lane.proc.title")}
             </Reveal>
           </div>
           <Reveal as="ol" className="steps">
-            {PROCESS.map((p, i) => (
+            {site.steps.map((p, i) => (
               <li key={i}>
                 <b>{p.title}</b>
                 <span>{p.text}</span>
@@ -261,25 +268,25 @@ export default async function LanePage({ params }: { params: { slug: string } })
 
       <section className="contact" id="contact">
         <div className="wrap">
-          <Reveal as="h2">Got something that needs running?</Reveal>
+          <Reveal as="h2">{t("lane.contact.title")}</Reveal>
           <Reveal as="p" className="lede">
-            Tell me what it is, even if it isn&apos;t fully shaped yet. I will reply with how I would approach it.
+            {t("lane.contact.lede")}
           </Reveal>
           <Composer subject={lane.subject} />
           <div className="links">
-            <a className="pill-btn line" href={`mailto:${CONTACT.email}`}>
-              {CONTACT.email}
+            <a className="pill-btn line" href={`mailto:${contact.email}`}>
+              {contact.email}
             </a>
-            <a className="pill-btn line" href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}>
-              {CONTACT.phone}
+            <a className="pill-btn line" href={`tel:${contact.phone.replace(/\s/g, "")}`}>
+              {contact.phone}
             </a>
-            <a className="pill-btn line" href={CONTACT.linkedin} target="_blank" rel="noopener">
-              LinkedIn
+            <a className="pill-btn line" href={contact.linkedin} target="_blank" rel="noopener">
+              {t("contact.linkedin")}
             </a>
           </div>
           <div className="contact-foot">
-            <span>Madhura Padman</span>
-            <Link href="/portfolio">See the full portfolio</Link>
+            <span>{site.settings.name?.trim() || "Madhura Padman"}</span>
+            <Link href="/portfolio">{t("lane.contact.portfolio")}</Link>
           </div>
         </div>
       </section>

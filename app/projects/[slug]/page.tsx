@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicProjectBySlug } from "@/lib/data";
 import Nav from "@/components/Nav";
+import { getSite } from "@/lib/site";
 
 export const revalidate = 0;
 
@@ -39,19 +40,21 @@ export default async function ProjectDetailPage({
   const result = await loadProject(params.slug);
   if (!result) notFound();
   const { project: p, images, documents } = result;
+  const site = await getSite(createClient());
+  const t = site.t;
   const visibleLinks = (p.links || []).filter((l) => l.visibility !== "private");
 
   return (
     <div className="page">
-      <Nav />
+      <Nav copy={site.copy} />
       <header className="page-head">
         <div className="wrap">
           <Link href="/portfolio#work" className="back-link">
-            &larr; Back to case studies
+            &larr; {t("project.back")}
           </Link>
           {p.status === "coming-soon" && (
             <div>
-              <span className="badge">Coming soon</span>
+              <span className="badge">{t("project.badge")}</span>
             </div>
           )}
           <h1>{p.title}</h1>
@@ -63,19 +66,19 @@ export default async function ProjectDetailPage({
           <div>
             {p.situation && (
               <div className="pd-field">
-                <span className="k">The Situation</span>
+                <span className="k">{t("project.situation")}</span>
                 <div className="v">{p.situation}</div>
               </div>
             )}
             {p.problem && (
               <div className="pd-field">
-                <span className="k">The Problem</span>
+                <span className="k">{t("project.problem")}</span>
                 <div className="v">{p.problem}</div>
               </div>
             )}
             {p.role && (
               <div className="pd-field">
-                <span className="k">My Role</span>
+                <span className="k">{t("project.role")}</span>
                 <div className="v">{p.role}</div>
               </div>
             )}
@@ -83,25 +86,25 @@ export default async function ProjectDetailPage({
           <div>
             {p.what_i_did && (
               <div className="pd-field">
-                <span className="k">What I Did</span>
+                <span className="k">{t("project.did")}</span>
                 <div className="v">{p.what_i_did}</div>
               </div>
             )}
             {p.process && (
               <div className="pd-field">
-                <span className="k">Process</span>
+                <span className="k">{t("project.process")}</span>
                 <div className="v">{p.process}</div>
               </div>
             )}
             {p.output && (
               <div className="pd-field">
-                <span className="k">Output</span>
+                <span className="k">{t("project.output")}</span>
                 <div className="v">{p.output}</div>
               </div>
             )}
             {p.outcome && (
               <div className="pd-field">
-                <span className="k">Result</span>
+                <span className="k">{t("project.result")}</span>
                 <div className="v">{p.outcome}</div>
               </div>
             )}
@@ -118,7 +121,7 @@ export default async function ProjectDetailPage({
                 target="_blank"
                 rel="noopener"
               >
-                {l.label || "View"} →
+                {l.label || t("project.view")} →
               </a>
             ))}
           </div>
@@ -134,7 +137,7 @@ export default async function ProjectDetailPage({
                 target="_blank"
                 rel="noopener"
               >
-                {d.label || "View document"} →
+                {d.label || t("project.viewDoc")} →
               </a>
             ))}
           </div>
@@ -152,7 +155,7 @@ export default async function ProjectDetailPage({
 
         {p.skills.length > 0 && (
           <div className="pd-field">
-            <span className="k">Skills shown</span>
+            <span className="k">{t("project.skills")}</span>
             <div className="pd-skills">
               {p.skills.map((sk, i) => (
                 <span key={i}>{sk}</span>

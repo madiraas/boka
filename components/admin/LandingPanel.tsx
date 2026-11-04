@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { LANES } from "@/lib/lanes";
 import { DEFAULT_LANDING, LandingContent, mergeLanding } from "@/lib/landing";
 
 export default function LandingPanel({
@@ -49,9 +48,12 @@ export default function LandingPanel({
 
   async function save() {
     setSaving(true);
-    const { error } = await createClient()
+    const supabase = createClient();
+    const { data: current } = await supabase.from("content_blocks").select("value").eq("key", "landing").maybeSingle();
+    const hiddenLanes = Array.isArray(current?.value?.hiddenLanes) ? current!.value.hiddenLanes : form.hiddenLanes;
+    const { error } = await supabase
       .from("content_blocks")
-      .upsert({ key: "landing", value: form, updated_at: new Date().toISOString() });
+      .upsert({ key: "landing", value: { ...form, hiddenLanes }, updated_at: new Date().toISOString() });
     setSaving(false);
     if (error) {
       toast(`Couldn't save the landing page: ${error.message}`, true);
@@ -64,7 +66,7 @@ export default function LandingPanel({
 
   return (
     <div className="a-editor">
-      <p>These are the words and tunnels on the first page of your site. Changes show up as soon as you save.</p>
+      <p className="a-lead">The big heading, the intro and the buttons on the first page. Changes show up as soon as you save.</p>
       {text("heading", "Big heading", true, "Press Enter to start a new line.")}
       {text("subtext", "Short intro under the heading", true)}
       <div className="a-row2">
@@ -76,22 +78,9 @@ export default function LandingPanel({
         {text("stripText", "Bottom strip, rest of the line")}
       </div>
 
-      <div className="a-field">
-        <label>Tunnels to show</label>
-        <div className="a-lanes">
-          {LANES.map((l) => {
-            const on = !form.hiddenLanes.includes(l.id);
-            return (
-              <label key={l.id} className={`a-lane${on ? " on" : ""}`}>
-                <input type="checkbox" checked={on} onChange={(e) => toggleLane(l.id, e.target.checked)} />
-                <span>{l.label}</span>
-                <em>{on ? "Showing" : "Hidden"}</em>
-              </label>
-            );
-          })}
-        </div>
-        <small>Untick a tunnel to hide it from the home page, the portfolio page and its own page.</small>
-      </div>
+      <p className="a-lead">
+        The tunnel cards (their names, one-liners and on/off switches) are in the <b>Tunnels</b> tab.
+      </p>
 
       <button className="a-save" onClick={save} disabled={saving}>
         {saving ? "Saving…" : "Save Landing Page"}

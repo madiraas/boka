@@ -48,7 +48,7 @@ export function mergeLanding(v: Partial<LandingContent>): LandingContent {
   return out;
 }
 
-export function visibleLanes(c: LandingContent): Lane[] {
-  const shown = LANES.filter((l) => !c.hiddenLanes.includes(l.id));
-  return shown.length ? shown : LANES;
+export function visibleLanes(c: LandingContent, lanes: Lane[] = LANES): Lane[] {
+  const shown = lanes.filter((l) => !c.hiddenLanes.includes(l.id));
+  return shown.length ? shown : lanes;
 }

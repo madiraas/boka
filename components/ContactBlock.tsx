@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Reveal from "./Reveal";
 import { CONTACT } from "@/lib/lanes";
+import { makeT } from "@/lib/sitecopy";
 
 /** Red closing section used at the bottom of the portfolio page. */
 export default function ContactBlock({
@@ -10,6 +11,8 @@ export default function ContactBlock({
   linkedin,
   name,
   location,
+  whatsapp,
+  copy,
 }: {
   title?: string;
   email?: string;
@@ -17,20 +20,22 @@ export default function ContactBlock({
   linkedin?: string;
   name?: string;
   location?: string;
+  whatsapp?: string;
+  copy?: Record<string, string>;
 }) {
+  const t = makeT(copy);
   const mail = email || CONTACT.email;
   const tel = phone || CONTACT.phone;
   return (
     <section className="contact" id="contact">
       <div className="wrap">
-        <Reveal as="h2">{title || "Got something messy that needs a hand?"}</Reveal>
+        <Reveal as="h2">{title || t("contact.title")}</Reveal>
         <Reveal as="p" className="lede">
-          Tell me what it is, even if it isn&apos;t fully shaped yet. I&apos;ll reply with how I would
-          approach it.
+          {t("contact.lede")}
         </Reveal>
         <div className="links">
-          <a className="pill-btn cream big" href={CONTACT.whatsapp}>
-            WhatsApp me
+          <a className="pill-btn cream big" href={whatsapp || CONTACT.whatsapp}>
+            {t("contact.whatsapp")}
           </a>
           <a className="pill-btn line big" href={`mailto:${mail}`}>
             {mail}
@@ -39,7 +44,7 @@ export default function ContactBlock({
             {tel}
           </a>
           <a className="pill-btn line big" href={linkedin || CONTACT.linkedin} target="_blank" rel="noopener">
-            LinkedIn
+            {t("contact.linkedin")}
           </a>
         </div>
         <div className="contact-foot">
@@ -47,7 +52,7 @@ export default function ContactBlock({
             {name || "Madhura Padman"}
             {location ? `, ${location}` : ""}
           </span>
-          <Link href="/resume">Read my resume</Link>
+          <Link href="/resume">{t("contact.resume")}</Link>
         </div>
       </div>
     </section>

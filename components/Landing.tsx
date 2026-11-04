@@ -6,12 +6,30 @@ import { useEffect, useRef, useState } from "react";
 import CatGate from "./CatGate";
 import Petals from "./Petals";
 import Portrait from "./Portrait";
-import { CONTACT, type Lane } from "@/lib/lanes";
+import type { Lane } from "@/lib/lanes";
 import type { LandingContent } from "@/lib/landing";
+import { makeT } from "@/lib/sitecopy";
+import type { VideoItem } from "@/lib/videos";
+import WatchIntro from "./WatchIntro";
 
 type Gate = "pending" | "show" | "gone";
 
-export default function Landing({ name, content, lanes }: { name: string; content: LandingContent; lanes: Lane[] }) {
+export default function Landing({
+  name,
+  content,
+  lanes,
+  copy,
+  contact,
+  intro,
+}: {
+  name: string;
+  content: LandingContent;
+  lanes: Lane[];
+  copy: Record<string, string>;
+  contact: { email: string; whatsapp: string };
+  intro: VideoItem | null;
+}) {
+  const t = makeT(copy);
   const [gate, setGate] = useState<Gate>("pending");
   const [riding, setRiding] = useState<string | null>(null);
   const [wipe, setWipe] = useState<{ tint: string; x: number; y: number } | null>(null);
@@ -59,10 +77,10 @@ export default function Landing({ name, content, lanes }: { name: string; conten
             {name}
           </Link>
           <nav aria-label="Main">
-            <Link href="/portfolio">Portfolio</Link>
-            <Link href="/portfolio#contact">Contact</Link>
+            <Link href="/portfolio">{t("nav.portfolio")}</Link>
+            <Link href="/portfolio#contact">{t("nav.contact")}</Link>
             <Link href="/resume" className="pill-btn cream">
-              Resume
+              {t("nav.resume")}
             </Link>
           </nav>
         </div>
@@ -87,6 +105,7 @@ export default function Landing({ name, content, lanes }: { name: string; conten
                 <Link href="/portfolio" className="pill-btn line big">
                   {content.portfolioLabel}
                 </Link>
+                {intro && <WatchIntro item={intro} label={t("home.watch")} />}
               </div>
             </div>
           </div>
@@ -107,11 +126,11 @@ export default function Landing({ name, content, lanes }: { name: string; conten
             <strong>{content.stripTitle}</strong> {content.stripText}
           </p>
           <div className="strip-links">
-            <a className="pill-btn solid" href={CONTACT.whatsapp}>
-              WhatsApp me
+            <a className="pill-btn solid" href={contact.whatsapp}>
+              {t("home.stripWhatsapp")}
             </a>
-            <a className="pill-btn" href={`mailto:${CONTACT.email}`}>
-              Email
+            <a className="pill-btn" href={`mailto:${contact.email}`}>
+              {t("home.stripEmail")}
             </a>
           </div>
         </div>

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Newsreader } from "next/font/google";
 import "./globals.css";
 import "./site.css";
+import { createClient } from "@/lib/supabase/server";
+import { getSite } from "@/lib/site";
 
 const display = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -15,11 +17,10 @@ const body = Newsreader({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Madhura Padman: I make messy projects move.",
-  description:
-    "Operations, travel and events. Madhura Padman takes projects that are all over the place and keeps them moving until they are done.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSite(createClient());
+  return { title: site.t("site.title"), description: site.t("site.description") };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
