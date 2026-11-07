@@ -30,7 +30,7 @@ export default async function LanePage({ params }: { params: { slug: string } })
   const items = (await getShowcase(createClient())).filter((i) => i.lane === lane.id);
   const cases = items.filter((i) => i.kind === "case_study");
   const voices = items.filter((i) => i.kind === "testimonial");
-  const shots = items.filter((i) => i.kind === "gallery");
+  const shots = items.filter((i) => i.kind === "gallery" && i.client !== "Modelling");
   const isWriting = lane.id === "writing";
 
   return (

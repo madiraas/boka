@@ -1,19 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Newsreader } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import "./site.css";
 import { createClient } from "@/lib/supabase/server";
 import { getSite } from "@/lib/site";
+import SoundToggle from "@/components/SoundToggle";
 
-const display = Bricolage_Grotesque({
+// One font file for the whole site: lighter on phones than two families.
+const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-display",
-  display: "swap",
-});
-const body = Newsreader({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-body",
   display: "swap",
 });
 
@@ -35,7 +31,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${body.variable}`}>{children}</body>
+      <body className={display.variable}>
+        {children}
+        <SoundToggle />
+      </body>
     </html>
   );
 }

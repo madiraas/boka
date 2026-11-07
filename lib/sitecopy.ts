@@ -51,6 +51,18 @@ f("portfolio", "Jump bar", "port.jump.work", "Jump link: Case studies", "Case st
 f("portfolio", "Jump bar", "port.jump.exp", "Jump link: Experience", "Experience");
 f("portfolio", "Jump bar", "port.jump.process", "Jump link: How I work", "Process");
 f("portfolio", "Jump bar", "port.jump.contact", "Jump link: Contact", "Contact");
+f("portfolio", "Numbers strip", "port.stat1.n", "Number 1", "10+");
+f("portfolio", "Numbers strip", "port.stat1.label", "Label 1", "properties onboarded");
+f("portfolio", "Numbers strip", "port.stat2.n", "Number 2", "10+");
+f("portfolio", "Numbers strip", "port.stat2.label", "Label 2", "influencer campaigns closed");
+f("portfolio", "Numbers strip", "port.stat3.n", "Number 3", "500+");
+f("portfolio", "Numbers strip", "port.stat3.label", "Label 3", "influencers coordinated");
+f("portfolio", "Numbers strip", "port.stat4.n", "Number 4", "1");
+f("portfolio", "Numbers strip", "port.stat4.label", "Label 4", "international campaign");
+f("portfolio", "Photos section", "port.photos.kicker", "Small label", "Behind the work");
+f("portfolio", "Photos section", "port.photos.title", "Heading", "Trips, events and shoots");
+f("portfolio", "Photos section", "port.photos.lede", "Line under the heading", "Photos from the ground. Tap one to see it larger.", true);
+f("portfolio", "Jump bar", "port.jump.photos", "Jump link: Photos", "Photos");
 f("portfolio", "About section", "port.about.kicker", "Small label above About", "About");
 f("portfolio", "What I take on section", "port.help.kicker", "Small label", "What I take on");
 f("portfolio", "What I take on section", "port.help.title", "Heading", "What you can hand me");

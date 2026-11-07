@@ -19,7 +19,7 @@ body{
   --serif: var(--font-display), "Helvetica Neue", Arial, sans-serif;
   --sans:  var(--font-display), "Helvetica Neue", Arial, sans-serif;
   --mono:  var(--font-display), "Helvetica Neue", Arial, sans-serif;
-  --body:  var(--font-body), Georgia, serif;
+  --body:  var(--font-display), "Helvetica Neue", Arial, sans-serif;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html{scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%;}

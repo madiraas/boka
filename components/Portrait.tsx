@@ -57,7 +57,9 @@ export default function Portrait() {
       centerReady = true;
       if (drawn === -2) paint(center, null, 0, -1);
     });
-    for (let k = 0; k < N; k++) {
+    // Phones load a quarter of the head-turn frames: much less to download and decode.
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    for (let k = 0; k < N; k += coarse ? 4 : 1) {
       const im = new Image();
       frames[k] = im;
       load(im, `/frames/${pad(k)}.webp`, () => {

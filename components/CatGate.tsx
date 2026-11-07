@@ -7,7 +7,7 @@ const FRAMES = [1, 2, 3, 4, 5, 6].map((n) => `/img/aarti${n}.png`);
 
 /**
  * The cat greets every visitor on its own: aarti, then petals, then the page opens.
- * There is nothing to click. A tap anywhere skips it.
+ * Visitors see a welcome line and a Skip button; a tap anywhere also skips it.
  */
 export default function CatGate({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<"in" | "aarti" | "bless" | "open">("in");
@@ -67,6 +67,20 @@ export default function CatGate({ onDone }: { onDone: () => void }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="g-aarti" src={FRAMES[frame]} alt="" />
       </div>
+      <p className="gate-line">
+        Welcome to Madhura&rsquo;s portfolio
+        <small>Loading the ride&hellip;</small>
+      </p>
+      <button
+        type="button"
+        className="gate-skip"
+        onClick={(e) => {
+          e.stopPropagation();
+          finish(true);
+        }}
+      >
+        Skip
+      </button>
     </div>
   );
 }

@@ -10,6 +10,8 @@ import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
 import ContactBlock from "@/components/ContactBlock";
 import VideoBlock from "@/components/VideoBlock";
+import StatsStrip from "@/components/StatsStrip";
+import PhotoWall from "@/components/PhotoWall";
 
 export const revalidate = 0; // always fetch fresh from Supabase
 export const metadata: Metadata = { title: "Portfolio: Madhura Padman" };
@@ -20,7 +22,14 @@ export default async function PortfolioPage() {
   const site = await getSite(supabase);
   const { t, contact } = site;
   const LANES = site.lanes;
-  const showcase = (await getShowcase(supabase)).filter((i) => i.kind === "case_study");
+  const allShowcase = await getShowcase(supabase);
+  const showcase = allShowcase.filter((i) => i.kind === "case_study");
+  const photos = allShowcase
+    .filter((i) => i.kind === "gallery" && i.media_type === "image" && i.media_url)
+    .map((i) => ({ id: i.id, url: i.media_url as string, title: i.title || "", category: i.client || "" }));
+  const stats = [1, 2, 3, 4]
+    .map((n) => ({ n: t(`port.stat${n}.n`), label: t(`port.stat${n}.label`) }))
+    .filter((x) => x.n.trim());
   const { settings: s, about, capabilities, problems } = data;
   const projects = data.projects.filter((p) => p.featured);
   const howIWork = site.steps.map((p) => ({ title: p.title, desc: p.text }));
@@ -71,11 +80,17 @@ export default async function PortfolioPage() {
           </div>
         </section>
       )}
+      <section className="stats-band">
+        <div className="wrap">
+          <StatsStrip stats={stats} />
+        </div>
+      </section>
       <div className="jump">
         <div className="jump-in">
           <a href="#about">{t("port.jump.about")}</a>
           <a href="#help">{t("port.jump.help")}</a>
           <a href="#work">{t("port.jump.work")}</a>
+          {photos.length > 0 && <a href="#photos">{t("port.jump.photos")}</a>}
           <a href="#experience">{t("port.jump.exp")}</a>
           <a href="#process">{t("port.jump.process")}</a>
           <a href="#contact">{t("port.jump.contact")}</a>
@@ -221,6 +236,21 @@ export default async function PortfolioPage() {
         </div>
       </section>
 
+      {photos.length > 0 && (
+        <section className="sec tint" id="photos">
+          <div className="wrap">
+            <div className="sec-head">
+              <div className="kicker">{t("port.photos.kicker")}</div>
+              <Reveal as="h2" className="sec-title">
+                {t("port.photos.title")}
+              </Reveal>
+              <p className="sec-lede">{t("port.photos.lede")}</p>
+            </div>
+          </div>
+          <PhotoWall photos={photos} />
+        </section>
+      )}
+
       {data.freelance.length > 0 && (
         <section className="sec tint" id="freelance">
           <div className="wrap">
@@ -288,13 +318,16 @@ function Rows({ list, t }: { list: Experience[]; t: (k: string) => string }) {
   if (!list.length) return <div className="empty-note">Nothing added yet.</div>;
   return (
     <>
-      {list.map((e) => (
-        <div className="t-row" key={e.id}>
-          <div>
-            <h3 className="t-org">{e.org}</h3>
-            <div className="t-role">{e.role}</div>
-            {e.dates && <div className="t-when">{e.dates}</div>}
-          </div>
+      {list.map((e, i) => (
+        <details className="t-acc" key={e.id} open={i === 0}>
+          <summary>
+            <span className="t-sum">
+              <h3 className="t-org">{e.org}</h3>
+              <span className="t-role">{e.role}</span>
+            </span>
+            {e.dates && <span className="t-when">{e.dates}</span>}
+            <i className="chev" aria-hidden="true" />
+          </summary>
           <div className="t-body">
             {e.context && (
               <p>
@@ -310,7 +343,7 @@ function Rows({ list, t }: { list: Experience[]; t: (k: string) => string }) {
             )}
             {e.demonstrates && <div className="shows">{e.demonstrates}</div>}
           </div>
-        </div>
+        </details>
       ))}
     </>
   );
