@@ -57,9 +57,9 @@ export default function Portrait() {
       centerReady = true;
       if (drawn === -2) paint(center, null, 0, -1);
     });
-    // Phones load a quarter of the head-turn frames: much less to download and decode.
+    // Phones load half of the head-turn frames: much less to download and decode.
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    for (let k = 0; k < N; k += coarse ? 4 : 1) {
+    for (let k = 0; k < N; k += coarse ? 2 : 1) {
       const im = new Image();
       frames[k] = im;
       load(im, `/frames/${pad(k)}.webp`, () => {
@@ -80,7 +80,6 @@ export default function Portrait() {
     let pointer: { x: number; y: number; t: number } | null = null;
     let gazeEl: Element | null = null;
     const onMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
       pointer = { x: e.clientX, y: e.clientY, t: performance.now() };
     };
     const onOver = (e: Event) => {
@@ -92,6 +91,22 @@ export default function Portrait() {
       if (!to || !to.closest?.("[data-gaze]")) gazeEl = null;
     };
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onMove, { passive: true });
+    // Nobody pointing (always the case on a phone): she glances at a random tunnel or corner now and then.
+    let glance: { x: number; y: number; until: number } | null = null;
+    let nextGlance = performance.now() + 1500;
+    const pickGlance = (now: number) => {
+      const els = Array.from(document.querySelectorAll("[data-gaze]"));
+      const el = els.length && Math.random() < 0.7 ? els[Math.floor(Math.random() * els.length)] : null;
+      if (el) {
+        const g = el.getBoundingClientRect();
+        glance = { x: g.left + g.width / 2, y: g.top + g.height * 0.4, until: now + 1800 };
+      } else {
+        const a = Math.random() * Math.PI * 2;
+        glance = { x: window.innerWidth / 2 + Math.cos(a) * 600, y: window.innerHeight / 2 + Math.sin(a) * 400, until: now + 1600 };
+      }
+      nextGlance = now + 1800 + 2600 + Math.random() * 2500;
+    };
     document.addEventListener("pointerover", onOver);
     document.addEventListener("pointerout", onOut);
     document.addEventListener("focusin", onOver);
@@ -115,6 +130,19 @@ export default function Portrait() {
         } else if (pointer && now - pointer.t < 6000) {
           tx = pointer.x;
           ty = pointer.y;
+        } else if (!reduce && (glance || now > nextGlance)) {
+          if (!glance || now > glance.until) {
+            if (glance) {
+              glance = null; // glance over, look back at you
+              nextGlance = now + 2600 + Math.random() * 2500;
+              if (centerReady) paint(center, null, 0, -1);
+              raf = requestAnimationFrame(tick);
+              return;
+            }
+            pickGlance(now);
+          }
+          tx = glance!.x;
+          ty = glance!.y;
         } else {
           if (centerReady) paint(center, null, 0, -1); // nobody pointing: she looks straight at you
           raf = requestAnimationFrame(tick);
@@ -152,6 +180,7 @@ export default function Portrait() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onMove);
       document.removeEventListener("pointerover", onOver);
       document.removeEventListener("pointerout", onOut);
       document.removeEventListener("focusin", onOver);

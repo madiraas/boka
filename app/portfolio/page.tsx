@@ -11,7 +11,11 @@ import ShowcaseMedia from "@/components/ShowcaseMedia";
 import ContactBlock from "@/components/ContactBlock";
 import VideoBlock from "@/components/VideoBlock";
 import StatsStrip from "@/components/StatsStrip";
+
+const TICKER = ["Operations", "Hospitality", "Treks and tours", "Events", "Creator campaigns", "Writing", "Mumbai and the islands"];
 import PhotoWall from "@/components/PhotoWall";
+import EventStories from "@/components/EventStories";
+import { splitGallery } from "@/lib/gallery";
 
 export const revalidate = 0; // always fetch fresh from Supabase
 export const metadata: Metadata = { title: "Portfolio: Madhura Padman" };
@@ -24,9 +28,7 @@ export default async function PortfolioPage() {
   const LANES = site.lanes;
   const allShowcase = await getShowcase(supabase);
   const showcase = allShowcase.filter((i) => i.kind === "case_study");
-  const photos = allShowcase
-    .filter((i) => i.kind === "gallery" && i.media_type === "image" && i.media_url)
-    .map((i) => ({ id: i.id, url: i.media_url as string, title: i.title || "", category: i.client || "" }));
+  const { stories, loose: photos } = splitGallery(allShowcase);
   const stats = [1, 2, 3, 4]
     .map((n) => ({ n: t(`port.stat${n}.n`), label: t(`port.stat${n}.label`) }))
     .filter((x) => x.n.trim());
@@ -85,6 +87,13 @@ export default async function PortfolioPage() {
           <StatsStrip stats={stats} />
         </div>
       </section>
+      <div className="ticker" aria-hidden="true">
+        <div className="ticker-in">
+          {[...TICKER, ...TICKER, ...TICKER, ...TICKER].map((w, i) => (
+            <span key={i}>{w}</span>
+          ))}
+        </div>
+      </div>
       <div className="jump">
         <div className="jump-in">
           <a href="#about">{t("port.jump.about")}</a>
@@ -236,7 +245,7 @@ export default async function PortfolioPage() {
         </div>
       </section>
 
-      {photos.length > 0 && (
+      {(photos.length > 0 || stories.length > 0) && (
         <section className="sec tint" id="photos">
           <div className="wrap">
             <div className="sec-head">
@@ -247,6 +256,8 @@ export default async function PortfolioPage() {
               <p className="sec-lede">{t("port.photos.lede")}</p>
             </div>
           </div>
+          <EventStories stories={stories} />
+          {photos.length > 0 && <div style={{ height: 30 }} />}
           <PhotoWall photos={photos} />
         </section>
       )}
