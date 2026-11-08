@@ -11,8 +11,6 @@ import ShowcaseMedia from "@/components/ShowcaseMedia";
 import ContactBlock from "@/components/ContactBlock";
 import VideoBlock from "@/components/VideoBlock";
 import StatsStrip from "@/components/StatsStrip";
-
-const TICKER = ["Operations", "Hospitality", "Treks and tours", "Events", "Creator campaigns", "Writing", "Mumbai and the islands"];
 import PhotoWall from "@/components/PhotoWall";
 import EventStories from "@/components/EventStories";
 import { splitGallery } from "@/lib/gallery";
@@ -27,12 +25,20 @@ export default async function PortfolioPage() {
   const { t, contact } = site;
   const LANES = site.lanes;
   const allShowcase = await getShowcase(supabase);
-  const showcase = allShowcase.filter((i) => i.kind === "case_study");
-  const { stories, loose: photos } = splitGallery(allShowcase);
+  const seen = new Set<string>();
+  const showcase = allShowcase
+    .filter((i) => i.kind === "case_study")
+    .filter((i) => {
+      const k = `${i.title}|${i.client}`.toLowerCase(); // the same project can sit in two rides; show it once here
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  const { stories, loose: photos, words } = splitGallery(allShowcase);
   const stats = [1, 2, 3, 4]
     .map((n) => ({ n: t(`port.stat${n}.n`), label: t(`port.stat${n}.label`) }))
     .filter((x) => x.n.trim());
-  const { settings: s, about, capabilities, problems } = data;
+  const { settings: s, about } = data;
   const projects = data.projects.filter((p) => p.featured);
   const howIWork = site.steps.map((p) => ({ title: p.title, desc: p.text }));
 
@@ -87,17 +93,9 @@ export default async function PortfolioPage() {
           <StatsStrip stats={stats} />
         </div>
       </section>
-      <div className="ticker" aria-hidden="true">
-        <div className="ticker-in">
-          {[...TICKER, ...TICKER, ...TICKER, ...TICKER].map((w, i) => (
-            <span key={i}>{w}</span>
-          ))}
-        </div>
-      </div>
       <div className="jump">
         <div className="jump-in">
           <a href="#about">{t("port.jump.about")}</a>
-          <a href="#help">{t("port.jump.help")}</a>
           <a href="#work">{t("port.jump.work")}</a>
           {photos.length > 0 && <a href="#photos">{t("port.jump.photos")}</a>}
           <a href="#experience">{t("port.jump.exp")}</a>
@@ -126,38 +124,6 @@ export default async function PortfolioPage() {
               ))}
             </Reveal>
           )}
-        </div>
-      </section>
-
-      <section className="sec tint" id="help">
-        <div className="wrap">
-          <div className="sec-head">
-            <div className="kicker">{t("port.help.kicker")}</div>
-            <Reveal as="h2" className="sec-title">
-              {t("port.help.title")}
-            </Reveal>
-          </div>
-          {problems.length > 0 && (
-            <Reveal className="asks">
-              {problems.map((p, i) => (
-                <div className="ask" key={i}>
-                  &ldquo;{p}&rdquo;
-                </div>
-              ))}
-            </Reveal>
-          )}
-          <Reveal className="grid-2">
-            {capabilities.length ? (
-              capabilities.map((c, i) => (
-                <div className="card" key={i}>
-                  <h3>{c.title}</h3>
-                  <p>{c.desc}</p>
-                </div>
-              ))
-            ) : (
-              <div className="empty-note">No capabilities added yet.</div>
-            )}
-          </Reveal>
         </div>
       </section>
 
@@ -259,6 +225,26 @@ export default async function PortfolioPage() {
           <EventStories stories={stories} />
           {photos.length > 0 && <div style={{ height: 30 }} />}
           <PhotoWall photos={photos} />
+        </section>
+      )}
+
+      {words.length > 0 && (
+        <section className="sec" id="words">
+          <div className="wrap kw">
+            <div>
+              <div className="kicker">Kind words</div>
+              <Reveal as="h2" className="sec-title">
+                Said in their own words
+              </Reveal>
+              <p className="sec-lede">A message from someone I worked with, with the name left out.</p>
+            </div>
+            <div className="kw-cards">
+              {words.map((w) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={w.id} src={w.url} alt={w.title || "A kind message"} loading="lazy" decoding="async" />
+              ))}
+            </div>
+          </div>
         </section>
       )}
 

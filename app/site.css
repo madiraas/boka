@@ -482,3 +482,11 @@ a, button, summary{ touch-action:manipulation; }
   .story-shots .shot{ box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--red); }
   .card{ box-shadow:0 2px 0 rgba(42,13,14,.18); }
 }
+
+/* scrapbook captions and kind words */
+.polaroid span{ font:700 22px/1.1 var(--hand) !important; color:var(--ink); min-height:1.3em; }
+.polaroid img{ height:clamp(250px,70vw,340px); }
+.phone-img{ background:var(--bg-raised); }
+.kw{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(22px,4vw,56px); align-items:center; }
+.kw-cards img{ width:100%; max-width:440px; margin:0 auto; display:block; border-radius:18px; border:1.5px solid var(--ink); box-shadow:6px 6px 0 var(--ink); transform:rotate(1.5deg); }
+@media (max-width:760px){ .kw{ grid-template-columns:1fr; } }

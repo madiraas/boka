@@ -11,7 +11,7 @@ import type { Story } from "@/components/EventStories";
 export function splitGallery(items: ShowcaseItem[], opts: { hide?: string[] } = {}) {
   const rows = items
     .filter((i) => i.kind === "gallery" && i.media_url && (i.media_type === "image" || i.media_type === "video"))
-    .filter((i) => !(opts.hide ?? []).includes(i.client || ""));
+    .filter((i) => !["Modelling", ...(opts.hide ?? [])].includes(i.client || ""));
   const toPhoto = (i: ShowcaseItem): Photo => ({
     id: i.id,
     url: i.media_url as string,
@@ -21,7 +21,9 @@ export function splitGallery(items: ShowcaseItem[], opts: { hide?: string[] } = 
     group: i.metric_label || undefined,
     note: i.summary || undefined,
   });
-  const photos = rows.map(toPhoto);
+  const all = rows.map(toPhoto);
+  const words = all.filter((p) => p.category === "Kind words");
+  const photos = all.filter((p) => p.category !== "Kind words");
   const byGroup = new Map<string, Photo[]>();
   const loose: Photo[] = [];
   for (const p of photos) {
@@ -34,5 +36,5 @@ export function splitGallery(items: ShowcaseItem[], opts: { hide?: string[] } = 
     designs: list.filter((p) => p.category === "Designs"),
     photos: list.filter((p) => p.category !== "Designs"),
   }));
-  return { stories, loose };
+  return { stories, loose, words };
 }
