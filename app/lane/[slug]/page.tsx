@@ -8,10 +8,7 @@ import { getSite } from "@/lib/site";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
-import PhotoWall from "@/components/PhotoWall";
-import EventStories from "@/components/EventStories";
-import PhoneFrame from "@/components/PhoneFrame";
-import { splitGallery } from "@/lib/gallery";
+import Gallery from "@/components/Gallery";
 import Composer from "@/components/Composer";
 import VideoBlock from "@/components/VideoBlock";
 
@@ -20,50 +17,6 @@ export const revalidate = 0;
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const lane = laneBySlug(params.slug);
   return { title: lane ? `${lane.title}: Madhura Padman` : "Madhura Padman" };
-}
-
-function Pol({ src, alt, tilt = -6 }: { src: string; alt: string; tilt?: number }) {
-  return (
-    <div className="pol" style={{ transform: `rotate(${tilt}deg)` }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} loading="eager" decoding="async" />
-    </div>
-  );
-}
-
-/** A few real pictures at the top of each ride, so the page opens on something other than words. */
-function Collage({ lane }: { lane: string }) {
-  if (lane === "events")
-    return (
-      <div className="ride-collage" aria-label="Event graphics and photos">
-        <Pol src="/gallery/event-car-expo.jpg" alt="Car expo" />
-        <PhoneFrame label="HappyHub Carnival" tilt={-3}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/gallery/event-happyhub-poster.jpg" alt="HappyHub Carnival poster" />
-        </PhoneFrame>
-        <PhoneFrame label="Soul Jams" tilt={4}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/gallery/event-souljams.jpg" alt="Soul Jams poster" />
-        </PhoneFrame>
-      </div>
-    );
-  if (lane === "hospitality")
-    return (
-      <div className="ride-collage" aria-label="Photos from trips">
-        <Pol src="/gallery/trip-temple.jpg" alt="Temple trip" tilt={-7} />
-        <Pol src="/gallery/trip-sunrise.jpg" alt="Sunrise on a trip" tilt={3} />
-        <Pol src="/gallery/trip-forest.jpg" alt="Forest trail" tilt={-2} />
-      </div>
-    );
-  if (lane === "operations")
-    return (
-      <div className="ride-collage" aria-label="Photos with teams">
-        <Pol src="/gallery/team-office.jpg" alt="With the team" tilt={-5} />
-        <Pol src="/gallery/event-stage-setup.jpg" alt="Setting up a stage" tilt={4} />
-        <Pol src="/gallery/team-festive.jpg" alt="Team celebration" tilt={-2} />
-      </div>
-    );
-  return null;
 }
 
 export default async function LanePage({ params }: { params: { slug: string } }) {
@@ -77,7 +30,7 @@ export default async function LanePage({ params }: { params: { slug: string } })
   const items = (await getShowcase(createClient())).filter((i) => i.lane === lane.id);
   const cases = items.filter((i) => i.kind === "case_study");
   const voices = items.filter((i) => i.kind === "testimonial");
-  const { stories, loose: shots } = splitGallery(items, { hide: ["Modelling"] });
+  const shots = items.filter((i) => i.kind === "gallery");
   const isWriting = lane.id === "writing";
 
   return (
@@ -116,7 +69,6 @@ export default async function LanePage({ params }: { params: { slug: string } })
               {t("lane.cta3")}
             </Link>
           </div>
-          <Collage lane={lane.id} />
         </div>
       </header>
 
@@ -226,7 +178,7 @@ export default async function LanePage({ params }: { params: { slug: string } })
         </section>
       )}
 
-      {(shots.length > 0 || stories.length > 0) && (
+      {shots.length > 0 && (
         <section className="sec tint" id="field">
           <div className="wrap">
             <div className="sec-head">
@@ -235,10 +187,8 @@ export default async function LanePage({ params }: { params: { slug: string } })
                 {t("lane.field.title")}
               </Reveal>
             </div>
+            <Gallery items={shots} />
           </div>
-          <EventStories stories={stories} />
-          {stories.length > 0 && shots.length > 0 && <div style={{ height: 30 }} />}
-          <PhotoWall photos={shots} />
         </section>
       )}
 
