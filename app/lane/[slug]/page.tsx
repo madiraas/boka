@@ -7,8 +7,9 @@ import { laneBySlug } from "@/lib/lanes";
 import { getSite } from "@/lib/site";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
-import ShowcaseMedia from "@/components/ShowcaseMedia";
-import { Tile } from "@/components/CaseVisual";
+import { CardMedia } from "@/components/CaseVisual";
+import { alike } from "@/lib/match";
+import { getPublicSiteData } from "@/lib/data";
 import Gallery from "@/components/Gallery";
 import Composer from "@/components/Composer";
 import VideoBlock from "@/components/VideoBlock";
@@ -25,6 +26,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 
 export default async function LanePage({ params }: { params: { slug: string } }) {
   const site = await getSite(createClient());
+  const projectList = (await getPublicSiteData(createClient())).projects;
   const { t, contact } = site;
   const LANES = site.lanes;
   const lane = LANES.find((l) => l.id === params.slug);
@@ -123,28 +125,28 @@ export default async function LanePage({ params }: { params: { slug: string } })
           </div>
           {cases.length ? (
             <Reveal className="cs-grid">
-              {cases.map((c) => (
-                <article className="cs" key={c.id}>
-                  <div className="cs-media">
-                    {c.media_url ? (
-                      <ShowcaseMedia item={c} />
-                    ) : (
-                      <Tile title={c.title} client={c.client} />
-                    )}
-                  </div>
-                  <div className="cs-body">
-                    {c.client && <div className="cs-meta">{c.client}</div>}
-                    <h3>{c.title}</h3>
-                    {c.summary && <p>{c.summary}</p>}
-                    {c.metric && (
-                      <div className="cs-metric">
-                        <b>{c.metric}</b>
-                        <span>{c.metric_label}</span>
-                      </div>
-                    )}
-                  </div>
-                </article>
-              ))}
+              {cases.map((c) => {
+                const match = projectList.find((p) => alike(p.title || "", c.title || ""));
+                return (
+                  <Link href={match ? `/projects/${match.slug}` : `/case/${c.id}`} className="cs" key={c.id}>
+                    <div className="cs-media">
+                      <CardMedia item={c} />
+                    </div>
+                    <div className="cs-body">
+                      {c.client && <div className="cs-meta">{c.client}</div>}
+                      <h3>{c.title}</h3>
+                      {c.summary && <p>{c.summary}</p>}
+                      {c.metric && (
+                        <div className="cs-metric">
+                          <b>{c.metric}</b>
+                          <span>{c.metric_label}</span>
+                        </div>
+                      )}
+                      <div className="cs-more">{t("port.work.read")}</div>
+                    </div>
+                  </Link>
+                );
+              })}
             </Reveal>
           ) : (
             <div className="invite">

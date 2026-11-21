@@ -367,3 +367,13 @@ a:active, button:active{ opacity:.85; }
 .gate-skip:active{ transform:scale(.96); }
 @media (max-height:640px){ .gate-stage{ height:34vh; } .gate{ gap:10px; } }
 @media (prefers-reduced-motion: reduce){ .gate-line{ animation:none; } }
+
+/* single case study page and clickable ride cards */
+.case-media{ max-width:880px; margin:0 0 28px; border:1.5px solid #2a0d0e; border-radius:22px; overflow:hidden; box-shadow:5px 5px 0 #2a0d0e; background:var(--tint,#f3e9e1); }
+.case-media img, .case-media video{ width:100%; display:block; }
+.case-media .cs-art{ margin:48px auto; display:block; }
+.case-text{ font-size:clamp(18px,2.2vw,22px); line-height:1.65; max-width:46em; margin:0 0 24px; }
+a.cs{ text-decoration:none; color:inherit; display:block; transition:transform .15s, box-shadow .15s; }
+a.cs:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 #2a0d0e; }
+a.cs:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 #2a0d0e; }
+.cs-more::after{ content:" \2192"; }

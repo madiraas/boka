@@ -7,8 +7,8 @@ import { getSite } from "@/lib/site";
 import type { Experience } from "@/lib/types";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
-import ShowcaseMedia from "@/components/ShowcaseMedia";
-import { Tile } from "@/components/CaseVisual";
+import { CardMedia } from "@/components/CaseVisual";
+import { alike } from "@/lib/match";
 import ContactBlock from "@/components/ContactBlock";
 import VideoBlock from "@/components/VideoBlock";
 
@@ -24,15 +24,6 @@ export default async function PortfolioPage() {
   const { settings: s, about, capabilities, problems } = data;
   const projects = data.projects.filter((p) => p.featured);
   // The same project can be saved twice (as a project and as a case study, or in two rides). Show it once.
-  const words = (t: string) =>
-    new Set(
-      t.toLowerCase().replace(/&/g, " and ").replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean).map((w) => w.replace(/s$/, ""))
-    );
-  const alike = (a: string, b: string) => {
-    const x = words(a), y = words(b);
-    const both = [...x].filter((w) => y.has(w)).length;
-    return both / (new Set([...x, ...y]).size || 1) >= 0.6;
-  };
   const showcase: Awaited<ReturnType<typeof getShowcase>> = [];
   for (const c of (await getShowcase(supabase)).filter((i) => i.kind === "case_study")) {
     const title = c.title || "";
@@ -180,7 +171,7 @@ export default async function PortfolioPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={cover[p.id]} alt="" loading="lazy" />
                   ) : (
-                    <Tile title={p.title} client={p.org} />
+                    <CardMedia item={{ title: p.title, client: p.org }} />
                   )}
                 </div>
                 <div className="cs-body">
@@ -198,17 +189,13 @@ export default async function PortfolioPage() {
               const lane = site.allLanes.find((l) => l.id === c.lane) ?? laneOf(c.lane);
               return (
                 <Link
-                  href={`/lane/${c.lane}`}
+                  href={`/case/${c.id}`}
                   className="cs"
                   key={c.id}
                   style={{ ["--tint" as string]: lane.tint }}
                 >
                   <div className="cs-media">
-                    {c.media_url ? (
-                      <ShowcaseMedia item={c} />
-                    ) : (
-                      <Tile title={c.title} client={c.client} />
-                    )}
+                    <CardMedia item={c} />
                   </div>
                   <div className="cs-body">
                     <div className="cs-meta">{[c.client, lane.label].filter(Boolean).join(", ")}</div>

@@ -73,3 +73,13 @@ export default function CaseVisual({ item }: { item: ShowcaseItem }) {
   if (item.media_url) return <ShowcaseMedia item={item} />;
   return <Tile title={item.title} client={item.client} />;
 }
+
+/** Picture for a card that is itself a link: a still picture or a tile (video and embeds play on the case page). */
+export function CardMedia({ item }: { item: { title?: string | null; client?: string | null; media_url?: string | null; media_type?: string | null } }) {
+  if (item.media_url && item.media_type === "image")
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={item.media_url} alt="" loading="lazy" decoding="async" />
+    );
+  return <Tile title={item.title} client={item.client} />;
+}
