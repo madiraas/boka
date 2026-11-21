@@ -12,10 +12,13 @@ const FRAMES = [1, 2, 3, 4, 5, 6].map((n) => `/img/aarti${n}.webp`);
 export default function CatGate({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<"in" | "aarti" | "bless" | "open">("in");
   const [frame, setFrame] = useState(0);
+  const [hi, setHi] = useState("");
   const done = useRef(false);
   const timers = useRef<number[]>([]);
 
   useEffect(() => {
+    const h = new Date().getHours();
+    setHi(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
     FRAMES.forEach((src) => {
       const im = new Image();
       im.src = src;
@@ -68,6 +71,7 @@ export default function CatGate({ onDone }: { onDone: () => void }) {
         <img className="g-aarti" src={FRAMES[frame]} alt="" />
       </div>
       <p className="gate-line">
+        <span className="gate-hi">{hi}</span>
         Welcome to Madhura&rsquo;s portfolio
         <small>Loading the ride&hellip;</small>
       </p>
