@@ -3,17 +3,32 @@
 import { useState } from "react";
 import { CONTACT } from "@/lib/lanes";
 
-/** Small form that opens the visitor's email app with the message filled in. */
-export default function Composer({ subject, email }: { subject: string; email?: string }) {
+/** Small form that opens the visitor's email app or WhatsApp with the message filled in. */
+export default function Composer({
+  subject,
+  email,
+  whatsapp,
+}: {
+  subject: string;
+  email?: string;
+  whatsapp?: string;
+}) {
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
+  const [tried, setTried] = useState(false);
+  const to = email || CONTACT.email;
+  const wa = whatsapp || CONTACT.whatsapp;
+  const body = `${msg}${msg ? "\n\n" : ""}${name ? "From: " + name : ""}`;
+  const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const waText = `Hi Madhura, ${msg || subject}${name ? " (" + name + ")" : ""}`;
   return (
     <form
       className="composer"
       onSubmit={(e) => {
         e.preventDefault();
-        const body = `${msg}${msg ? "\n\n" : ""}${name ? "From: " + name : ""}`;
-        window.location.href = `mailto:${email || CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        setTried(true);
+        window.location.href = mailto;
       }}
     >
       <label>
@@ -33,10 +48,16 @@ export default function Composer({ subject, email }: { subject: string; email?: 
         <button className="pill-btn cream big" type="submit">
           Write the email
         </button>
-        <a className="pill-btn line big" href={CONTACT.whatsapp}>
+        <a className="pill-btn line big" href={`${wa}${wa.includes("?") ? "&" : "?"}text=${encodeURIComponent(waText)}`} target="_blank" rel="noopener">
           Or WhatsApp me
         </a>
       </div>
+      {tried && (
+        <p className="composer-note" role="status">
+          Nothing opened? No problem. <a href={gmail} target="_blank" rel="noopener">Write it in Gmail</a>, or email me at{" "}
+          <a href={`mailto:${to}`}>{to}</a>.
+        </p>
+      )}
     </form>
   );
 }

@@ -276,7 +276,7 @@ export default async function LanePage({ params }: { params: { slug: string } })
           <Reveal as="p" className="lede">
             {t("lane.contact.lede")}
           </Reveal>
-          <Composer subject={lane.subject} />
+          <Composer subject={lane.subject} email={site.contact.email} whatsapp={site.contact.whatsapp} />
           <div className="links">
             <a className="pill-btn line" href={`mailto:${contact.email}`}>
               {contact.email}

@@ -357,3 +357,5 @@ a:active, button:active{ opacity:.85; }
 .a-lane.on em{ color:var(--accent); }
 
 @media (prefers-reduced-motion: reduce){ .gate-line{ animation:none; opacity:1; transform:none; } }
+.composer-note{ margin:14px 0 0; font-size:15px; line-height:1.5; }
+.composer-note a{ text-decoration:underline; font-weight:700; }
