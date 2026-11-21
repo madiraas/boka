@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/public";
 import { getPublicSiteData } from "@/lib/data";
 import PrintButton from "@/components/PrintButton";
 import VideoBlock from "@/components/VideoBlock";
 import { getSite } from "@/lib/site";
 
-export const revalidate = 0;
+export const revalidate = 60; // a ready copy is reused for a minute, so the site stays fast; admin edits show within a minute
 export const metadata: Metadata = { title: "Resume: Madhura Padman" };
 
 export default async function ResumePage() {

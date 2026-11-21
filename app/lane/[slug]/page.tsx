@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/public";
 import { getShowcase } from "@/lib/showcase";
 import { laneBySlug } from "@/lib/lanes";
 import { getSite } from "@/lib/site";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
+import { Tile } from "@/components/CaseVisual";
 import Gallery from "@/components/Gallery";
 import Composer from "@/components/Composer";
 import VideoBlock from "@/components/VideoBlock";
 
-export const revalidate = 0;
+export function generateStaticParams() {
+  return ["operations", "hospitality", "events", "writing"].map((slug) => ({ slug }));
+}
+export const revalidate = 60; // a ready copy is reused for a minute, so the site stays fast; admin edits show within a minute
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const lane = laneBySlug(params.slug);
@@ -125,7 +129,7 @@ export default async function LanePage({ params }: { params: { slug: string } })
                     {c.media_url ? (
                       <ShowcaseMedia item={c} />
                     ) : (
-                      <span className="initial">{(c.title || "?").slice(0, 1)}</span>
+                      <Tile title={c.title} client={c.client} />
                     )}
                   </div>
                   <div className="cs-body">

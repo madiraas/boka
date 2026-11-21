@@ -1,8 +1,8 @@
 import Landing from "@/components/Landing";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/public";
 import { getSite } from "@/lib/site";
 
-export const revalidate = 0;
+export const revalidate = 60; // a ready copy is reused for a minute, so the site stays fast; admin edits show within a minute
 
 export default async function HomePage() {
   const site = await getSite(createClient());

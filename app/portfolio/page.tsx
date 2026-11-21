@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/public";
 import { getPublicSiteData } from "@/lib/data";
 import { getShowcase, laneOf } from "@/lib/showcase";
 import { getSite } from "@/lib/site";
@@ -8,10 +8,11 @@ import type { Experience } from "@/lib/types";
 import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
+import { Tile } from "@/components/CaseVisual";
 import ContactBlock from "@/components/ContactBlock";
 import VideoBlock from "@/components/VideoBlock";
 
-export const revalidate = 0; // always fetch fresh from Supabase
+export const revalidate = 60; // a ready copy is reused for a minute, so the site stays fast; admin edits show within a minute
 export const metadata: Metadata = { title: "Portfolio: Madhura Padman" };
 
 export default async function PortfolioPage() {
@@ -20,9 +21,24 @@ export default async function PortfolioPage() {
   const site = await getSite(supabase);
   const { t, contact } = site;
   const LANES = site.lanes;
-  const showcase = (await getShowcase(supabase)).filter((i) => i.kind === "case_study");
   const { settings: s, about, capabilities, problems } = data;
   const projects = data.projects.filter((p) => p.featured);
+  // The same project can be saved twice (as a project and as a case study, or in two rides). Show it once.
+  const words = (t: string) =>
+    new Set(
+      t.toLowerCase().replace(/&/g, " and ").replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean).map((w) => w.replace(/s$/, ""))
+    );
+  const alike = (a: string, b: string) => {
+    const x = words(a), y = words(b);
+    const both = [...x].filter((w) => y.has(w)).length;
+    return both / (new Set([...x, ...y]).size || 1) >= 0.6;
+  };
+  const showcase: Awaited<ReturnType<typeof getShowcase>> = [];
+  for (const c of (await getShowcase(supabase)).filter((i) => i.kind === "case_study")) {
+    const title = c.title || "";
+    if (projects.some((p) => alike(p.title || "", title)) || showcase.some((k) => alike(k.title || "", title))) continue;
+    showcase.push(c);
+  }
   const howIWork = site.steps.map((p) => ({ title: p.title, desc: p.text }));
 
   // first picture of each project, for the cards
@@ -164,7 +180,7 @@ export default async function PortfolioPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={cover[p.id]} alt="" loading="lazy" />
                   ) : (
-                    <span className="initial">{(p.title || "?").slice(0, 1)}</span>
+                    <Tile title={p.title} client={p.org} />
                   )}
                 </div>
                 <div className="cs-body">
@@ -191,7 +207,7 @@ export default async function PortfolioPage() {
                     {c.media_url ? (
                       <ShowcaseMedia item={c} />
                     ) : (
-                      <span className="initial">{(c.title || "?").slice(0, 1)}</span>
+                      <Tile title={c.title} client={c.client} />
                     )}
                   </div>
                   <div className="cs-body">

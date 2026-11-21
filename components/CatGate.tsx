@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { throwPetals } from "./Petals";
 
-const FRAMES = [1, 2, 3, 4, 5, 6].map((n) => `/img/aarti${n}.png`);
+const FRAMES = [1, 2, 3, 4, 5, 6].map((n) => `/img/aarti${n}.webp`);
 
 /**
  * The cat greets every visitor on its own: aarti, then petals, then the page opens.
@@ -63,7 +63,7 @@ export default function CatGate({ onDone }: { onDone: () => void }) {
           <i />
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="g-kitten" src="/img/kitten.png" alt="" />
+        <img className="g-kitten" src="/img/kitten.webp" alt="" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="g-aarti" src={FRAMES[frame]} alt="" />
       </div>

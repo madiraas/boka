@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/public";
 import { getPublicProjectBySlug } from "@/lib/data";
 import Nav from "@/components/Nav";
 import { getSite } from "@/lib/site";
 
-export const revalidate = 0;
+export function generateStaticParams() {
+  return []; // pages are made the first time someone opens them, then reused for a minute
+}
+export const revalidate = 60; // a ready copy is reused for a minute, so the site stays fast; admin edits show within a minute
 
 async function loadProject(slug: string) {
   const supabase = createClient();
