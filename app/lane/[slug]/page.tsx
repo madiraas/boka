@@ -13,6 +13,7 @@ import { getPublicSiteData } from "@/lib/data";
 import Gallery from "@/components/Gallery";
 import Composer from "@/components/Composer";
 import VideoBlock from "@/components/VideoBlock";
+import MailLink from "@/components/MailLink";
 
 export function generateStaticParams() {
   return ["operations", "hospitality", "events", "writing"].map((slug) => ({ slug }));
@@ -68,9 +69,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
             <a className="pill-btn solid big" href={contact.whatsapp}>
               {t("lane.cta1")}
             </a>
-            <a className="pill-btn big" href={`mailto:${contact.email}?subject=${encodeURIComponent(lane.subject)}`}>
+            <MailLink className="pill-btn big" to={contact.email} subject={lane.subject}>
               {t("lane.cta2")}
-            </a>
+            </MailLink>
             <Link className="pill-btn big" href="/resume">
               {t("lane.cta3")}
             </Link>
@@ -152,9 +153,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
             <div className="invite">
               <h3>{t("invite.title")}</h3>
               <p>{t("invite.text")}</p>
-              <a className="pill-btn solid" href={`mailto:${contact.email}?subject=${encodeURIComponent(lane.subject)}`}>
+              <MailLink className="pill-btn solid" to={contact.email} subject={lane.subject}>
                 {t("invite.button")}
-              </a>
+              </MailLink>
             </div>
           )}
         </div>
@@ -280,9 +281,9 @@ export default async function LanePage({ params }: { params: { slug: string } })
           </Reveal>
           <Composer subject={lane.subject} email={site.contact.email} whatsapp={site.contact.whatsapp} />
           <div className="links">
-            <a className="pill-btn line" href={`mailto:${contact.email}`}>
+            <MailLink className="pill-btn line" to={contact.email}>
               {contact.email}
-            </a>
+            </MailLink>
             <a className="pill-btn line" href={`tel:${contact.phone.replace(/\s/g, "")}`}>
               {contact.phone}
             </a>

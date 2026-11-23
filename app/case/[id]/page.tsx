@@ -7,6 +7,7 @@ import { getSite } from "@/lib/site";
 import Nav from "@/components/Nav";
 import ShowcaseMedia from "@/components/ShowcaseMedia";
 import { Tile } from "@/components/CaseVisual";
+import MailLink from "@/components/MailLink";
 
 export function generateStaticParams() {
   return []; // made the first time someone opens it, then reused for a minute
@@ -51,9 +52,9 @@ export default async function CasePage({ params }: { params: { id: string } }) {
           </div>
         )}
         <div className="pd-links">
-          <a className="pill-btn solid" href={`mailto:${contact.email}?subject=${encodeURIComponent(`About: ${c.title}`)}`}>
+          <MailLink className="pill-btn solid" to={contact.email} subject={`About: ${c.title}`}>
             Ask me about this
-          </a>
+          </MailLink>
           <a className="pill-btn" href={contact.whatsapp}>
             {t("port.btnWhatsapp")}
           </a>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Reveal from "./Reveal";
 import { CONTACT } from "@/lib/lanes";
 import { makeT } from "@/lib/sitecopy";
+import MailLink from "@/components/MailLink";
 
 /** Red closing section used at the bottom of the portfolio page. */
 export default function ContactBlock({
@@ -37,9 +38,9 @@ export default function ContactBlock({
           <a className="pill-btn cream big" href={whatsapp || CONTACT.whatsapp}>
             {t("contact.whatsapp")}
           </a>
-          <a className="pill-btn line big" href={`mailto:${mail}`}>
+          <MailLink className="pill-btn line big" to={mail}>
             {mail}
-          </a>
+          </MailLink>
           <a className="pill-btn line big" href={`tel:${tel.replace(/\s/g, "")}`}>
             {tel}
           </a>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CONTACT } from "@/lib/lanes";
+import { gmailUrl } from "./MailLink";
 
 /** Small form that opens the visitor's email app or WhatsApp with the message filled in. */
 export default function Composer({
@@ -20,7 +21,7 @@ export default function Composer({
   const wa = whatsapp || CONTACT.whatsapp;
   const body = `${msg}${msg ? "\n\n" : ""}${name ? "From: " + name : ""}`;
   const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const gmail = gmailUrl(to, subject, body);
   const waText = `Hi Madhura, ${msg || subject}${name ? " (" + name + ")" : ""}`;
   return (
     <form
@@ -28,7 +29,13 @@ export default function Composer({
       onSubmit={(e) => {
         e.preventDefault();
         setTried(true);
-        window.location.href = mailto;
+        let phone = false;
+        try {
+          phone = window.matchMedia("(pointer: coarse)").matches;
+        } catch {}
+        // Phones open their mail app; laptops open the message in Gmail, since many have no mail app set up.
+        if (phone) window.location.href = mailto;
+        else window.open(gmail, "_blank", "noopener");
       }}
     >
       <label>
@@ -54,8 +61,8 @@ export default function Composer({
       </div>
       {tried && (
         <p className="composer-note" role="status">
-          Nothing opened? No problem. <a href={gmail} target="_blank" rel="noopener">Write it in Gmail</a>, or email me at{" "}
-          <a href={`mailto:${to}`}>{to}</a>.
+          Nothing opened? <a href={gmail} target="_blank" rel="noopener">Write it in Gmail</a>, or send it to{" "}
+          <b>{to}</b> from any email app.
         </p>
       )}
     </form>

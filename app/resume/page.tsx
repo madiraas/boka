@@ -5,6 +5,7 @@ import { getPublicSiteData } from "@/lib/data";
 import PrintButton from "@/components/PrintButton";
 import VideoBlock from "@/components/VideoBlock";
 import { getSite } from "@/lib/site";
+import MailLink from "@/components/MailLink";
 
 export const revalidate = 60; // a ready copy is reused for a minute, so the site stays fast; admin edits show within a minute
 export const metadata: Metadata = { title: "Resume: Madhura Padman" };
@@ -53,7 +54,7 @@ export default async function ResumePage() {
           {s.tagline && <p className="r-tag">{s.tagline}</p>}
           <div className="r-contact">
             {s.professionalTitle && <span>{s.professionalTitle}</span>}
-            {s.email && <a href={`mailto:${s.email}`}>{s.email}</a>}
+            {s.email && <MailLink to={s.email} />}
             {s.phone && <a href={`tel:${s.phone.replace(/\s/g, "")}`}>{s.phone}</a>}
             {s.location && <span>{s.location}</span>}
           </div>

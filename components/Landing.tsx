@@ -11,6 +11,7 @@ import type { LandingContent } from "@/lib/landing";
 import { makeT } from "@/lib/sitecopy";
 import type { VideoItem } from "@/lib/videos";
 import WatchIntro from "./WatchIntro";
+import MailLink from "@/components/MailLink";
 
 type Gate = "pending" | "show" | "gone";
 
@@ -129,9 +130,9 @@ export default function Landing({
             <a className="pill-btn solid" href={contact.whatsapp}>
               {t("home.stripWhatsapp")}
             </a>
-            <a className="pill-btn" href={`mailto:${contact.email}`}>
+            <MailLink className="pill-btn" to={contact.email}>
               {t("home.stripEmail")}
-            </a>
+            </MailLink>
           </div>
         </div>
       </section>
